@@ -1,0 +1,9 @@
+from .Zho_layout import NODE_CLASS_MAPPINGS as NODE_CLASS_MAPPINGS_A
+from .Zho_AlphaChanel import NODE_CLASS_MAPPINGS as NODE_CLASS_MAPPINGS_B
+
+
+# Combine the dictionaries
+NODE_CLASS_MAPPINGS = {**NODE_CLASS_MAPPINGS_A, **NODE_CLASS_MAPPINGS_B}
+
+
+__all__ = ['NODE_CLASS_MAPPINGS']
