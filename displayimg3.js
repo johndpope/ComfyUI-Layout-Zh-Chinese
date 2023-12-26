@@ -33,12 +33,6 @@ app.registerExtension({
 			parent: document.body,
 		});
 
-		const submenuSetting = app.ui.settings.addSetting({
-			id: "zho.Combo++.Submenu",
-			name: "Enable submenu in custom nodes",
-			defaultValue: true,
-			type: "boolean",
-		});
 
 		// Ensure hook callbacks are available
 		const getOrSet = (target, name, create) => {
@@ -58,13 +52,6 @@ app.registerExtension({
 		// Simple check for what separator to split by
 		const splitBy = (navigator.platform || navigator.userAgent).includes("Win") ? /\/|\\/ : /\//;
 
-		contextMenuHook["ctor"].push(function (values, options) {
-			// Copy the class from the parent so if we are dark we are also dark
-			// this enables the filter box
-			if (options.parentMenu?.options?.className === "dark") {
-				options.className = "dark";
-			}
-		});
 
 		// After an element is created for an item, add an image if it has one
 		contextMenuHook["addItem"].push(function (el, menu, [name, value, options]) {
@@ -80,51 +67,8 @@ app.registerExtension({
 		});
 
 		function buildMenu(widget, values) {
-			const lookup = {
-				"": { options: [] },
-			};
-
-			// Split paths into menu structure
-			for (const value of values) {
-				const split = value.content.split(splitBy);
-				let path = "";
-				for (let i = 0; i < split.length; i++) {
-					const s = split[i];
-					const last = i === split.length - 1;
-					if (last) {
-						// Leaf node, manually add handler that sets the lora
-						lookup[path].options.push({
-							...value,
-							title: s,
-							callback: () => {
-								widget.value = value;
-								widget.callback(value);
-								app.graph.setDirtyCanvas(true);
-							},
-						});
-					} else {
-						const prevPath = path;
-						path += s + splitBy;
-						if (!lookup[path]) {
-							const sub = {
-								title: s,
-								submenu: {
-									options: [],
-									title: s,
-								},
-							};
-
-							// Add to tree
-							lookup[path] = sub.submenu;
-							lookup[prevPath].options.push(sub);
-						}
-					}
-				}
-			}
-
-			return lookup[""].options;
 		}
-
+		
 		// Override COMBO widgets to patch their values
 		const combo = ComfyWidgets["COMBO"];
 		ComfyWidgets["COMBO"] = function (node, inputName, inputData) {
@@ -261,54 +205,6 @@ app.registerExtension({
 			};
 		}
 
-		const getExtraMenuOptions = nodeType.prototype.getExtraMenuOptions;
-		nodeType.prototype.getExtraMenuOptions = function (_, options) {
-			if (this.imgs) {
-				// If this node has images then we add an open in new tab item
-				let img;
-				if (this.imageIndex != null) {
-					// An image is selected so select that
-					img = this.imgs[this.imageIndex];
-				} else if (this.overIndex != null) {
-					// No image is selected but one is hovered
-					img = this.imgs[this.overIndex];
-				}
-				if (img) {
-					const nodes = app.graph._nodes.filter(
-						(n) => n.comfyClass === ARTIST_LOADER
-					);
-					if (nodes.length) {
-						options.unshift({
-							content: "Save as Preview",
-							submenu: {
-								options: nodes.map((n) => ({
-									content: n.widgets[0].value.content,
-									callback: async () => {
-										const url = new URL(img.src);
-										const { image } = await api.fetchApi(
-											"/zho/save/" + encodeURIComponent(`${getType(n)}/${n.widgets[0].value.content}`),
-											{
-												method: "POST",
-												body: JSON.stringify({
-													filename: url.searchParams.get("filename"),
-													subfolder: url.searchParams.get("subfolder"),
-													type: url.searchParams.get("type"),
-												}),
-												headers: {
-													"content-type": "application/json",
-												},
-											}
-										);
-										n.widgets[0].value.image = image;
-										app.refreshComboInNodes();
-									},
-								})),
-							},
-						});
-					}
-				}
-			}
-			return getExtraMenuOptions?.apply(this, arguments);
-		};
+		
 	},
 });
