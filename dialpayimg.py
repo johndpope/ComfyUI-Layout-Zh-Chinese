@@ -20,9 +20,18 @@ async def view(request):
 
 def get_img_path(template_name):
     p = os.path.dirname(os.path.realpath(__file__))
-    image_path = os.path.join(p, 'img_lists/artists/')
+    # 根据操作系统选择合适的分隔符
+    if os.name == 'posix':  # Unix/Linux/macOS
+        separator = '/'
+    elif os.name == 'nt':  # Windows
+        separator = '\\'
+    else:
+        separator = '/'  # 默认使用斜杠作为分隔符
+
+    image_path = os.path.join(p, 'img_lists', 'artists')  # 使用适当的分隔符构建路径
     image_filename = f"{template_name}.jpg"
-    full_image_path = os.path.join(image_path, image_filename)
+
+    full_image_path = image_path + separator + image_filename
 
     return full_image_path
 
