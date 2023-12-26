@@ -18,6 +18,13 @@ async def view(request):
     
     return web.FileResponse(image_path)
 
+def get_img_path(template_name):
+    p = os.path.dirname(os.path.realpath(__file__))
+    image_path = os.path.join(p, 'img_lists/artists/')
+    image_filename = f"{template_name}.jpg"
+    full_image_path = os.path.join(image_path, image_filename)
+
+    return full_image_path
 
 def populate_items(names, type):
     for idx, item_name in enumerate(names):
