@@ -1,6 +1,6 @@
 function ARTISTS_IMAGEUPLOAD(node, inputName, inputData, app) {
 		const imageWidget = node.widgets.find((w) => w.name === (inputData[1]?.widget ?? "image"));
-		let uploadWidget;
+		let artistuploadWidget;
 
 		function showImage(name) {
 			const img = new Image();
@@ -113,12 +113,12 @@ function ARTISTS_IMAGEUPLOAD(node, inputName, inputData, app) {
 		document.body.append(fileInput);
 
 		// Create the button widget for selecting the files
-		uploadWidget = node.addWidget("button", inputName, "image", () => {
+		artistuploadWidget = node.addWidget("button", inputName, "image", () => {
 			fileInput.click();
 		});
-		uploadWidget.label = "choose file to upload";
-		uploadWidget.serialize = false;
+		artistuploadWidget.label = "choose file to upload";
+		artistuploadWidget.serialize = false;
 
 
-		return { widget: uploadWidget };
+		return { widget: artistuploadWidget };
 	},
