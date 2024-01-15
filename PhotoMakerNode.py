@@ -47,8 +47,7 @@ class PhotoMaker_Zho:
         return p.replace("{prompt}", positive), n + ' ' + negative
 
     def process_images(self, model_name, ref_image, prompt, negative_prompt, style_name, style_strength_ratio, steps, guidance_scale, batch_size, seed):
-        full_path_with_extension = folder_paths.get_full_path("checkpoints", model_name)
-        base_model_path, _ = os.path.splitext(full_path_with_extension)
+        base_model_path = folder_paths.get_full_path("checkpoints", "")
 
         # Load base model
         pipe = PhotoMakerStableDiffusionXLPipeline.from_pretrained(
@@ -125,8 +124,7 @@ class PhotoMaker_Batch_Zho:
         return p.replace("{prompt}", positive), n + ' ' + negative
 
     def process_images(self, model_name, ref_images_path, prompt, negative_prompt, style_name, style_strength_ratio, steps, guidance_scale, batch_size, seed):
-        full_path_with_extension = folder_paths.get_full_path("checkpoints", model_name)
-        base_model_path, _ = os.path.splitext(full_path_with_extension)
+        base_model_path = folder_paths.get_full_path("checkpoints", "")
 
         # Load base model
         pipe = PhotoMakerStableDiffusionXLPipeline.from_pretrained(
