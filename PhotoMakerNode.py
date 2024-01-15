@@ -1,6 +1,7 @@
 
 import torch
 import os
+import folder_paths
 from diffusers.utils import load_image
 from diffusers import EulerDiscreteScheduler
 from .pipeline import PhotoMakerStableDiffusionXLPipeline
@@ -9,30 +10,10 @@ from .style_template import styles
 
 
 # global variable
-base_model_path = "../../models/checkpoints"
-photomaker_path = "./models"
+photomaker_path = "./models/photomaker-v1.bin"
 device = "cuda" if torch.cuda.is_available() else "cpu"
 STYLE_NAMES = list(styles.keys())
 DEFAULT_STYLE_NAME = "Photographic (Default)"
-
-# Load base model
-pipe = PhotoMakerStableDiffusionXLPipeline.from_pretrained(
-    base_model_path,
-    torch_dtype=torch.bfloat16,
-    use_safetensors=True,
-    variant="fp16"
-).to(device)
-
-# Load PhotoMaker checkpoint
-pipe.load_photomaker_adapter(
-    os.path.dirname(photomaker_path),
-    subfolder="",
-    weight_name=os.path.basename(photomaker_path),
-    trigger_word="img"
-)
-
-pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
-pipe.fuse_lora()
 
 
 class PhotoMaker_Zho:
@@ -43,6 +24,7 @@ class PhotoMaker_Zho:
     def INPUT_TYPES(cls):
         return {
             "required": {
+                "model_name": (folder_paths.get_filename_list("checkpoints"), ),
                 "ref_image": ("IMAGE",),
                 "prompt": ("STRING", {"default": "sci-fi, closeup portrait photo of a man img wearing the sunglasses in Iron man suit, face, slim body, high quality, film grain", "multiline": True}),
                 "negative_prompt": ("STRING", {"default": "asymmetry, worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth", "multiline": True}),
@@ -64,7 +46,27 @@ class PhotoMaker_Zho:
         p, n = styles.get(style_name, styles[DEFAULT_STYLE_NAME])
         return p.replace("{prompt}", positive), n + ' ' + negative
 
-    def process_images(self, ref_image, prompt, negative_prompt, style_name, style_strength_ratio, steps, guidance_scale, batch_size, seed):
+    def process_images(self, model_name, ref_image, prompt, negative_prompt, style_name, style_strength_ratio, steps, guidance_scale, batch_size, seed):
+        base_model_path = folder_paths.get_full_path("checkpoints", model_name)
+
+        # Load base model
+        pipe = PhotoMakerStableDiffusionXLPipeline.from_pretrained(
+            base_model_path,
+            torch_dtype=torch.bfloat16,
+            use_safetensors=True,
+            variant="fp16"
+        ).to(device)
+
+        # Load PhotoMaker checkpoint
+        pipe.load_photomaker_adapter(
+            os.path.dirname(photomaker_path),
+            subfolder="",
+            weight_name=os.path.basename(photomaker_path),
+            trigger_word="img"
+        )
+        pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
+        pipe.fuse_lora()
+
         input_id_images = ref_image
       
         # apply the style template
@@ -89,6 +91,7 @@ class PhotoMaker_Zho:
       
         return (images,)
 
+
 #batch
 class PhotoMaker_Batch_Zho:
     def __init__(self):
@@ -98,6 +101,7 @@ class PhotoMaker_Batch_Zho:
     def INPUT_TYPES(cls):
         return {
             "required": {
+                "model_name": (folder_paths.get_filename_list("checkpoints"), ),
                 "ref_images_path": ("STRING", {"default": "./examples/newton_man"}),
                 "prompt": ("STRING", {"default": "sci-fi, closeup portrait photo of a man img wearing the sunglasses in Iron man suit, face, slim body, high quality, film grain", "multiline": True}),
                 "negative_prompt": ("STRING", {"default": "asymmetry, worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth", "multiline": True}),
@@ -119,7 +123,27 @@ class PhotoMaker_Batch_Zho:
         p, n = styles.get(style_name, styles[DEFAULT_STYLE_NAME])
         return p.replace("{prompt}", positive), n + ' ' + negative
 
-    def process_images(self, ref_images_path, prompt, negative_prompt, style_name, style_strength_ratio, steps, guidance_scale, batch_size, seed):
+    def process_images(self, model_name, ref_images_path, prompt, negative_prompt, style_name, style_strength_ratio, steps, guidance_scale, batch_size, seed):
+        base_model_path = folder_paths.get_full_path("checkpoints", model_name)
+
+        # Load base model
+        pipe = PhotoMakerStableDiffusionXLPipeline.from_pretrained(
+            base_model_path,
+            torch_dtype=torch.bfloat16,
+            use_safetensors=True,
+            variant="fp16"
+        ).to(device)
+
+        # Load PhotoMaker checkpoint
+        pipe.load_photomaker_adapter(
+            os.path.dirname(photomaker_path),
+            subfolder="",
+            weight_name=os.path.basename(photomaker_path),
+            trigger_word="img"
+        )
+        pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
+        pipe.fuse_lora()
+        
         # Process images
         image_basename_list = os.listdir(ref_images_path)
         image_path_list = sorted([os.path.join(ref_images_path, basename) for basename in image_basename_list])
