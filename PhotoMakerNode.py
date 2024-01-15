@@ -9,7 +9,7 @@ from .style_template import styles
 
 
 # global variable
-base_model_path = '../../models/checkpoints'
+base_model_path = '.../models/checkpoints'
 photomaker_path = './models'
 device = "cuda" if torch.cuda.is_available() else "cpu"
 STYLE_NAMES = list(styles.keys())
