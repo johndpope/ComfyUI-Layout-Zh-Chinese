@@ -3,7 +3,7 @@ import torch
 import os
 from diffusers.utils import load_image
 from diffusers import EulerDiscreteScheduler
-from .photomaker.pipeline import PhotoMakerStableDiffusionXLPipeline
+from .pipeline import PhotoMakerStableDiffusionXLPipeline
 from huggingface_hub import hf_hub_download
 from .style_template import styles
 
