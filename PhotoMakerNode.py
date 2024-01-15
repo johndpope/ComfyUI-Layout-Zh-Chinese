@@ -28,7 +28,7 @@ class PhotoMaker_Zho:
                 "ref_image": ("IMAGE",),
                 "prompt": ("STRING", {"default": "sci-fi, closeup portrait photo of a man img wearing the sunglasses in Iron man suit, face, slim body, high quality, film grain", "multiline": True}),
                 "negative_prompt": ("STRING", {"default": "asymmetry, worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth", "multiline": True}),
-                "style_name": ("STRING", {"default": DEFAULT_STYLE_NAME, "options": STYLE_NAMES}),
+                "style_name": (STYLE_NAMES, {"default": DEFAULT_STYLE_NAME}),
                 "style_strength_ratio": ("INT", {"default": 20, "min": 1, "max": 50, "display": "slider"}),
                 "steps": ("INT", {"default": 50, "min": 1, "max": 100, "step": 1, "display": "slider"}),
                 "guidance_scale": ("FLOAT", {"default": 5, "min": 0.1, "max": 10.0, "step": 0.1, "display": "slider"}),
@@ -47,7 +47,8 @@ class PhotoMaker_Zho:
         return p.replace("{prompt}", positive), n + ' ' + negative
 
     def process_images(self, model_name, ref_image, prompt, negative_prompt, style_name, style_strength_ratio, steps, guidance_scale, batch_size, seed):
-        base_model_path = folder_paths.get_full_path("checkpoints", model_name)
+        full_path_with_extension = folder_paths.get_full_path("checkpoints", model_name)
+        base_model_path, _ = os.path.splitext(full_path_with_extension)
 
         # Load base model
         pipe = PhotoMakerStableDiffusionXLPipeline.from_pretrained(
@@ -105,7 +106,7 @@ class PhotoMaker_Batch_Zho:
                 "ref_images_path": ("STRING", {"default": "./examples/newton_man"}),
                 "prompt": ("STRING", {"default": "sci-fi, closeup portrait photo of a man img wearing the sunglasses in Iron man suit, face, slim body, high quality, film grain", "multiline": True}),
                 "negative_prompt": ("STRING", {"default": "asymmetry, worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth", "multiline": True}),
-                "style_name": ("STRING", {"default": DEFAULT_STYLE_NAME, "options": STYLE_NAMES}),
+                "style_name": (STYLE_NAMES, {"default": DEFAULT_STYLE_NAME}),
                 "style_strength_ratio": ("INT", {"default": 20, "min": 1, "max": 50, "display": "slider"}),
                 "steps": ("INT", {"default": 50, "min": 1, "max": 100, "step": 1, "display": "slider"}),
                 "guidance_scale": ("FLOAT", {"default": 5, "min": 0.1, "max": 10.0, "step": 0.1, "display": "slider"}),
@@ -124,7 +125,8 @@ class PhotoMaker_Batch_Zho:
         return p.replace("{prompt}", positive), n + ' ' + negative
 
     def process_images(self, model_name, ref_images_path, prompt, negative_prompt, style_name, style_strength_ratio, steps, guidance_scale, batch_size, seed):
-        base_model_path = folder_paths.get_full_path("checkpoints", model_name)
+        full_path_with_extension = folder_paths.get_full_path("checkpoints", model_name)
+        base_model_path, _ = os.path.splitext(full_path_with_extension)
 
         # Load base model
         pipe = PhotoMakerStableDiffusionXLPipeline.from_pretrained(
