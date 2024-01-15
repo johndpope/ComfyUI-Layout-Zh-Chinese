@@ -1,5 +1,5 @@
 from .Zho_layout import NODE_CLASS_MAPPINGS as NODE_CLASS_MAPPINGS_A
-from .AnyTextNodeTest import NODE_CLASS_MAPPINGS as NODE_CLASS_MAPPINGS_B
+from .PhotoMakerNode import NODE_CLASS_MAPPINGS as NODE_CLASS_MAPPINGS_B
 
 
 # Combine the dictionaries
