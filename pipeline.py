@@ -18,7 +18,7 @@ from diffusers.utils import (
     logging,
 )
 
-from photomaker.model import PhotoMakerIDEncoder
+from .model import PhotoMakerIDEncoder
 
 PipelineImageInput = Union[
     PIL.Image.Image,
