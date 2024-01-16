@@ -100,10 +100,7 @@ class PhotoMaker_Batch_Zho:
         )
             
         # 提取第一张图像
-        img = output[0][0]  # output 是元组，其第一个元素是图像列表
-
-        # 确保图像是 RGB 格式
-        img = img.convert("RGB")
+        img = output[0][0].convert("RGB")
 
         # 将 PIL.Image 转换为归一化的 torch.Tensor
         img_tensor = torch.from_numpy(np.array(img).astype(np.float32) / 255.0)
@@ -111,11 +108,15 @@ class PhotoMaker_Batch_Zho:
         # 转换张量格式为 CHW
         img_tensor = img_tensor.permute(2, 0, 1)
 
-        # 添加批次维度
-        img_tensor = img_tensor.unsqueeze(0)
+        # 删除批次维度（如果存在）
+        if img_tensor.ndim == 4:
+            img_tensor = img_tensor.squeeze(0)
 
-        # 返回包含单个图像张量的列表
-        return [img_tensor]
+        # 转换为 uint8 类型的 numpy 数组
+        img_array = (img_tensor.numpy() * 255).astype(np.uint8)
+
+        # 返回图像数组列表
+        return [img_array]
 
 
 
