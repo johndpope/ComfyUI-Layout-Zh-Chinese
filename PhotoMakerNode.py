@@ -7,7 +7,8 @@ from diffusers import EulerDiscreteScheduler
 from .pipeline import PhotoMakerStableDiffusionXLPipeline
 from huggingface_hub import hf_hub_download
 from .style_template import styles
-
+from PIL import Image
+import numpy as np
 
 # global variable
 photomaker_path = hf_hub_download(repo_id="TencentARC/PhotoMaker", filename="photomaker-v1.bin", repo_type="model")
