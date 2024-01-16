@@ -10,13 +10,13 @@ from .style_template import styles
 STYLE_NAMES = list(styles.keys())
 DEFAULT_STYLE_NAME = "Photographic (Default)"
 
+def apply_style(style_name: str, positive: str, negative: str = "") -> tuple[str, str]:
+        p, n = styles.get(style_name, styles[DEFAULT_STYLE_NAME])
+        return p.replace("{prompt}", positive), n + ' ' + negative
+
 class PhotoMakerNode:
 
     @staticmethod
-    def apply_style(style_name: str, positive: str, negative: str = "") -> tuple[str, str]:
-        p, n = styles.get(style_name, styles[PhotoMakerNode.DEFAULT_STYLE_NAME])
-        return p.replace("{prompt}", positive), n + ' ' + negative
-
     def __init__(self, base_model_path="SG161222/RealVisXL_V3.0", ref_images_path=None):
         self.base_model_path = base_model_path
         self.ref_images_path = ref_images_path
