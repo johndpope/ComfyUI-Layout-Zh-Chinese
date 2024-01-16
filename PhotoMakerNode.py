@@ -95,8 +95,7 @@ class PhotoMaker_Batch_Zho:
             num_inference_steps=steps,
             start_merge_step=start_merge_step,
             generator=generator,
-            guidance_scale=guidance_scale,
-            return_dict=False
+            guidance_scale=guidance_scale
         ).images
 
         return images
