@@ -99,10 +99,16 @@ class PhotoMaker_Batch_Zho:
             return_dict=True
         )
             
-        output_type = type(output)
-        print(output_type)
-            
-        return output
+        # 检查 output 类型并相应处理
+        if isinstance(output, dict) and "images" in output:
+            # 如果 output 是字典并且包含 "images" 键
+            images = output["images"]
+        else:
+            # 如果 output 不是预期格式，抛出错误
+            raise TypeError("Unexpected output format from pipe function.")
+
+        # 返回图像列表
+        return images
 
 
 
