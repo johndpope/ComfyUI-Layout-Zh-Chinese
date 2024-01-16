@@ -94,14 +94,18 @@ class PhotoMaker_Batch_Zho:
             start_merge_step=start_merge_step,
             generator=generator,
             guidance_scale=guidance_scale,
-        ).images
+        )
 
-        # 如果 output.images 是 PIL.Image 对象，则将其转换为 numpy.ndarray
-        if isinstance(output.images, Image.Image):
-            images = [np.array(output.images)]
+        # 检查 output 是单个图像对象还是图像列表
+        if isinstance(output, Image.Image):
+            # 如果是单个 PIL.Image 对象，则将其转换为 numpy.ndarray 并放入列表
+            images = [np.array(output)]
+        elif isinstance(output, list) and all(isinstance(img, Image.Image) for img in output):
+            # 如果是 PIL.Image 对象的列表，则转换每个图像
+            images = [np.array(img) for img in output]
         else:
-            # 否则假设它已经是 numpy.ndarray 或 torch.Tensor
-            images = output.images
+            # 否则假设 output 已经是 numpy.ndarray 或 torch.Tensor 的列表
+            images = output
 
         return images
 
