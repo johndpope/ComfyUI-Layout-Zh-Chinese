@@ -2,7 +2,6 @@
 import torch
 import os
 import folder_paths
-from torchvision import transforms
 from diffusers.utils import load_image
 from diffusers import EulerDiscreteScheduler
 from .pipeline import PhotoMakerStableDiffusionXLPipeline
@@ -102,22 +101,24 @@ class PhotoMaker_Batch_Zho:
         # 检查输出类型并相应处理
         if isinstance(output, tuple):
             # 当返回的是元组时，第一个元素是图像列表
-            image = output[0]
+            images_list = output[0]
         else:
             # 如果返回的是 StableDiffusionXLPipelineOutput，需要从中提取图像
-            image = output.images
-                
-        # 确保图像是PIL Image
-        if not isinstance(image, Image.Image):
-            # 如果不是PIL Image，则尝试打开它
-            try:
-                image = Image.open(image)
-            except Exception as e:
-                raise ValueError(f"Unable to open image: {str(e)}")
+            images_list = output.images
 
-        image_tensor = transforms.ToTensor()(image)
+        # 转换图像为 torch.Tensor
+        images_tensors = []
+        for img in images_list:
+            # 将 PIL.Image 转换为 numpy.ndarray
+            img_array = np.array(img)
+            # 转换 numpy.ndarray 为 torch.Tensor
+            img_tensor = torch.from_numpy(img_array).float() / 255.
+            # 转换图像格式为 CHW (如果需要)
+            if img_tensor.ndim == 3 and img_tensor.shape[-1] == 3:
+                img_tensor = img_tensor.permute(2, 0, 1)
+            images_tensors.append(img_tensor)
 
-        return image_tensor
+        return images_tensors
 
 # Dictionary to export the node
 NODE_CLASS_MAPPINGS = {
