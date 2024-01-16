@@ -122,32 +122,25 @@ class PhotoMaker_Batch_Zho:
         else:
             print("output 不是一个元组")
                 
-        
-         # 检查输出类型并相应处理
-        if isinstance(output, tuple):
-            print("output 是一个元组")
-            # 当返回的是元组时，第一个元素是图像列表
-            images_list = output[0]
-        else:
-            print("output 不是一个元组")
-            # 如果返回的是 StableDiffusionXLPipelineOutput，需要从中提取图像
-            images_list = output.images
-                
-        # 转换图像为 torch.Tensor
-        images_tensors = []
-        for img in images_list:
-            if img.mode != "RGB":
-                img = img.convert("RGB")  # 如果不是RGB模式，将其转换为RGB模式
-            # 将 PIL.Image 转换为 numpy.ndarray
-            img_array = np.array(img)
-            # 转换 numpy.ndarray 为 torch.Tensor
-            img_tensor = torch.from_numpy(img_array).float() / 255.
-            # 转换图像格式为 CHW (如果需要)
-            if img_tensor.ndim == 3 and img_tensor.shape[-1] == 3:
-                img_tensor = img_tensor.permute(2, 0, 1)
-            images_tensors.append(img_tensor)
 
-        return images_tensors
+        if isinstance(output, tuple) and len(output) == 1:
+            image = output[0]  # 获取元组中的图像元素
+            # 继续处理图像，确保它是彩色图像
+            if isinstance(image, Image.Image) and image.mode == "RGB":
+                # 转换图像为 torch.Tensor
+                img = image.convert("RGB")  # 确保图像是RGB模式
+                img_array = np.array(img)
+                img_tensor = torch.from_numpy(img_array).float() / 255.
+                # 转换图像格式为 CHW (如果需要)
+                if img_tensor.ndim == 3 and img_tensor.shape[-1] == 3:
+                    img_tensor = img_tensor.permute(2, 0, 1)
+                # 在这里继续处理 img_tensor，它是PyTorch张量
+            else:
+                print("元组中的元素不是彩色图像")
+        else:
+            print("output 不符合预期的元组结构")
+
+        return img_tensor
             
 
 # Dictionary to export the node
