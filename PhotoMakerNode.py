@@ -95,17 +95,21 @@ class PhotoMaker_Batch_Zho:
             start_merge_step=start_merge_step,
             generator=generator,
             guidance_scale=guidance_scale,
+            return_dict=False
         )
 
-        # 确保 output 是 PIL.Image 对象，然后转换为 numpy.ndarray
-        if isinstance(output, Image.Image):
-            image_array = np.array(output)
+        # 检查输出类型并相应处理
+        if isinstance(output, tuple):
+            # 当返回的是元组时，第一个元素是图像列表
+            images = output[0]
         else:
-            # 如果 output 不是预期的 PIL.Image 对象，需要处理这种情况
-            raise TypeError("Unexpected output type from pipe function.")
+            # 如果返回的是 StableDiffusionXLPipelineOutput，需要从中提取图像
+            images = output.images
 
-        # 将图像数组放入列表中返回
-        return [image_array]
+        # 将图像转换为 numpy.ndarray
+        images = [np.array(img) for img in images]
+
+        return images
 
 # Dictionary to export the node
 NODE_CLASS_MAPPINGS = {
