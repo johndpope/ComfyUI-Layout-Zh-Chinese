@@ -99,7 +99,7 @@ class PhotoMaker_Batch_Zho:
 
         images = np.array(output)
 
-        return (images,)
+        return [images]
 
 # Dictionary to export the node
 NODE_CLASS_MAPPINGS = {
