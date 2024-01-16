@@ -17,7 +17,7 @@ class PhotoMakerNode:
         p, n = styles.get(style_name, styles[PhotoMakerNode.DEFAULT_STYLE_NAME])
         return p.replace("{prompt}", positive), n + ' ' + negative
 
-    def __init__(self, base_model_path, ref_images_path):
+    def __init__(self, base_model_path="SG161222/RealVisXL_V3.0", ref_images_path="./examples/newton_man"):
         self.base_model_path = base_model_path
         self.ref_images_path = ref_images_path
         self.photomaker_path = hf_hub_download(repo_id="TencentARC/PhotoMaker", filename="photomaker-v1.bin", repo_type="model")
