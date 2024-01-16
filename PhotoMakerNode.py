@@ -99,32 +99,20 @@ class PhotoMaker_Batch_Zho:
             return_dict=False
         )
             
-        # 确保 output 是一个元组且至少有一个元素
-        if isinstance(output, tuple) and len(output) > 0:
-            # 假设 output 的第一个元素是一个图像列表
-            images_list = output[0]
-        
-            # 提取第一张图像并确保是 RGB 格式
-            if len(images_list) > 0:
-                img = images_list[0].convert("RGB")
+        # 提取第一张图像（因为 num_images_per_prompt=1）
+        img = output[0][0]
 
-                # 将 PIL.Image 转换为归一化的 numpy 数组
-                img_array = np.array(img).astype(np.float32) / 255.0
+        # 如果不是 PIL.Image 格式，则进行转换
+        if not isinstance(img, Image.Image):
+            img = Image.fromarray(img)
 
-                # 将 numpy 数组转换为 torch.Tensor
-                img_tensor = torch.from_numpy(img_array)
+        # 确保图像是 RGB 格式
+        img = img.convert("RGB")
 
-                # 转换张量格式为 CHW
-                img_tensor = img_tensor.permute(2, 0, 1)
+        # 将处理好的图像放入列表中
+        processed_images = [img]
 
-                # 添加批次维度
-                img_tensor = img_tensor.unsqueeze(0)
-
-                return [img_tensor]
-            else:
-                raise ValueError("No images found in the output.")
-        else:
-            raise TypeError("Unexpected output format from pipe function.")
+        return processed_images
 
 
 
