@@ -98,12 +98,31 @@ class PhotoMaker_Batch_Zho:
             guidance_scale=guidance_scale,
             return_dict=False
         )
-                
+            
+        output_type = type(output)
+        print(output_type)
+            
+        if isinstance(output, Image.Image):
+            print("output 是PIL图像")
+        else:
+            print("output 不是PIL图像")
+        if isinstance(output, np.ndarray):
+            print("output 是NumPy数组")
+        else:
+            print("output 不是NumPy数组")
+        if isinstance(output, torch.Tensor):
+            print("output 是PyTorch张量（Tensor）")
+        else:
+            print("output 不是PyTorch张量（Tensor）")
+
+        
          # 检查输出类型并相应处理
         if isinstance(output, tuple):
+            print("output 是一个元组")
             # 当返回的是元组时，第一个元素是图像列表
             images_list = output[0]
         else:
+            print("output 不是一个元组")
             # 如果返回的是 StableDiffusionXLPipelineOutput，需要从中提取图像
             images_list = output.images
                 
