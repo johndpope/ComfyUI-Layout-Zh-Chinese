@@ -45,7 +45,7 @@ class PhotoMaker_Batch_Zho:
     FUNCTION = "process_images"
     CATEGORY = "📷PhotoMaker"
 
-    def process_images(self, base_model_path, ref_images_path, prompt, negative_prompt, style_name, style_strength_ratio, steps, guidance_scale, batch_size, seed):
+    def process_images(self, base_model_path, ref_images_path, prompt, negative_prompt, style_name, style_strength_ratio, steps, guidance_scale, seed):
 
         # Load base model
         pipe = PhotoMakerStableDiffusionXLPipeline.from_pretrained(
