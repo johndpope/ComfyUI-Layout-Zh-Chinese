@@ -116,8 +116,8 @@ class PhotoMaker_Batch_Zho:
             # 转换 numpy.ndarray 为 torch.Tensor
             img_tensor = torch.from_numpy(img_array).float() / 255.
             # 转换图像格式为 CHW (如果需要)
-            if img_tensor.ndim == 3 and img_tensor.shape[-1] == 3:
-                img_tensor = img_tensor.permute(2, 0, 1)
+            #if img_tensor.ndim == 3 and img_tensor.shape[-1] == 3:
+                #img_tensor = img_tensor.permute(2, 0, 1)
             images_tensors.append(img_tensor)
 
         return images_tensors
