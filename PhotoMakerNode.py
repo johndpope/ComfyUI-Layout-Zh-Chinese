@@ -98,31 +98,30 @@ class PhotoMaker_Batch_Zho:
             guidance_scale=guidance_scale,
             return_dict=False
         )
-
-        # 检查输出类型并相应处理
+                
+         # 检查输出类型并相应处理
         if isinstance(output, tuple):
             # 当返回的是元组时，第一个元素是图像列表
-            img = output[0][0] # 只取第一张图像
+            images_list = output[0]
         else:
             # 如果返回的是 StableDiffusionXLPipelineOutput，需要从中提取图像
-            img = output.images[0] # 只取第一张图像
+            images_list = output.images
+                
+        # 转换图像为 torch.Tensor
+        images_tensors = []
+        for img in images_list:
+            img = img.convert("RGB")
+            # 将 PIL.Image 转换为 numpy.ndarray
+            img_array = np.array(img)
+            # 转换 numpy.ndarray 为 torch.Tensor
+            img_tensor = torch.from_numpy(img_array).float() / 255.
+            # 转换图像格式为 CHW (如果需要)
+            if img_tensor.ndim == 3 and img_tensor.shape[-1] == 3:
+                img_tensor = img_tensor.permute(2, 0, 1)
+            images_tensors.append(img_tensor)
 
-        img = img.convert("RGB")
+        return images_tensors
             
-        # 将 PIL.Image 转换为 numpy.ndarray
-        img_array = np.array(img)
-
-        # Convert PIL.Image to a normalized torch.Tensor
-        #img_tensor = torch.from_numpy((img_array).astype(np.float32) / 255.0)
-        
-        # 转换 numpy.ndarray 为 torch.Tensor
-        img_tensor = torch.from_numpy(img_array).float() / 255.
-
-        # 转换图像格式为 CHW (如果需要)
-        if img_tensor.ndim == 3 and img_tensor.shape[-1] == 3:
-            img_tensor = img_tensor.permute(2, 0, 1)
-
-        return img_tensor
 
 # Dictionary to export the node
 NODE_CLASS_MAPPINGS = {
