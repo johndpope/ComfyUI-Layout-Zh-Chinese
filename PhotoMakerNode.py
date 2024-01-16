@@ -97,7 +97,7 @@ class PhotoMaker_Batch_Zho:
         ).images[0]
 
     # 直接返回图像列表
-        return generated_image
+        return [generated_image]
 
 # Dictionary to export the node
 NODE_CLASS_MAPPINGS = {
