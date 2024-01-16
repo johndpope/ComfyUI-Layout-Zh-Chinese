@@ -122,7 +122,6 @@ class PhotoMaker_Batch_Zho:
         else:
             print("output 不是一个元组")
 
-        img_tensor = None  # 在条件之外初始化img_tensor
 
         if isinstance(output, tuple) and len(output) == 1:
             image = output[0]  # 获取元组中的图像元素
@@ -136,13 +135,12 @@ class PhotoMaker_Batch_Zho:
                 if img_tensor.ndim == 3 and img_tensor.shape[-1] == 3:
                     img_tensor = img_tensor.permute(2, 0, 1)
                 # 在这里继续处理 img_tensor，它是PyTorch张量
+                return img_tensor
             else:
                 print("元组中的元素不是彩色图像")
         else:
             print("output 不符合预期的元组结构")
 
-        return img_tensor
-            
 
 # Dictionary to export the node
 NODE_CLASS_MAPPINGS = {
