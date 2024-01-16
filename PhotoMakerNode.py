@@ -107,20 +107,9 @@ class PhotoMaker_Batch_Zho:
             # 如果返回的是 StableDiffusionXLPipelineOutput，需要从中提取图像
             img = output.images[0]  # 只取第一张图像
 
-        # 确保图像为RGB模式
-        if img.mode != 'RGB':
-            img = img.convert('RGB')
 
-        # 将PIL.Image转换为归一化的numpy数组
-        img_array = np.array(img).astype(np.float32) / 255.0
-        
-        # 转换numpy数组为torch张量（不调整通道顺序）
-        img_tensor = torch.from_numpy(img_array)
 
-        # 添加一个批次维度
-        img_tensor = img_tensor.unsqueeze(0)
-
-        return img_tensor
+        return img
 
 # Dictionary to export the node
 NODE_CLASS_MAPPINGS = {
