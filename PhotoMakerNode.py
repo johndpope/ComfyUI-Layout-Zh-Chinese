@@ -85,7 +85,7 @@ class PhotoMaker_Batch_Zho:
 
         generator = torch.Generator(device=device).manual_seed(seed)
 
-        generated_image = pipe(
+        output = pipe(
             prompt=prompt,
             input_id_images=input_id_images,
             negative_prompt=negative_prompt,
@@ -94,10 +94,16 @@ class PhotoMaker_Batch_Zho:
             start_merge_step=start_merge_step,
             generator=generator,
             guidance_scale=guidance_scale,
-        ).images[0]
+        ).images
 
-    # 直接返回图像列表
-        return [generated_image]
+        # 如果 output.images 是 PIL.Image 对象，则将其转换为 numpy.ndarray
+        if isinstance(output.images, Image.Image):
+            images = [np.array(output.images)]
+        else:
+            # 否则假设它已经是 numpy.ndarray 或 torch.Tensor
+            images = output.images
+
+        return images
 
 # Dictionary to export the node
 NODE_CLASS_MAPPINGS = {
