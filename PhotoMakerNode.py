@@ -105,18 +105,7 @@ class PhotoMaker_Batch_Zho:
         # 将 PIL.Image 转换为归一化的 torch.Tensor
         img_tensor = torch.from_numpy(np.array(img).astype(np.float32) / 255.0)
 
-        # 转换张量格式为 CHW
-        img_tensor = img_tensor.permute(2, 0, 1)
-
-        # 删除批次维度（如果存在）
-        if img_tensor.ndim == 4:
-            img_tensor = img_tensor.squeeze(0)
-
-        # 转换为 uint8 类型的 numpy 数组
-        img_array = (img_tensor.numpy() * 255).astype(np.uint8)
-
-        # 返回图像数组列表
-        return [img_array]
+        return img_tensor
 
 
 
