@@ -66,11 +66,11 @@ class PhotoMakerNode:
             "required": {
                 "base_model_path": ("STRING", {"default": "SG161222/RealVisXL_V3.0", "multiline": False}),
                 "ref_images_path": ("STRING", {"default": "./examples/newton_man"}),
-                "prompt": ("STRING", {"default": "Enter your prompt here"}),
-                "negative_prompt": ("STRING", {"default": "Enter negative prompt here"}),
-                "style_name": ("SELECT", {"options": PhotoMakerNode.STYLE_NAMES, "default": PhotoMakerNode.DEFAULT_STYLE_NAME}),
-                "style_strength_ratio": ("FLOAT", {"default": 20.0, "min": 0.0, "max": 100.0}),
-                "num_steps": ("INT", {"default": 50, "min": 1, "max": 100}),
+                "prompt": ("STRING", {"default": "Enter your prompt here", "multiline": True}),
+                "negative_prompt": ("STRING", {"default": "Enter negative prompt here", "multiline": True}),
+                "style_name": (STYLE_NAMES, {"default": DEFAULT_STYLE_NAME}),
+                "style_strength_ratio": ("FLOAT", {"default": 20.0, "min": 0.0, "max": 100.0, "display": "slider"}),
+                "num_steps": ("INT", {"default": 50, "min": 1, "max": 100, "display": "slider"}),
                 "guidance_scale": ("FLOAT", {"default": 5, "min": 0.1, "max": 10.0, "step": 0.1, "display": "slider"}),
                 "seed": ("INT", {"default": 42, "min": 0})
             }
