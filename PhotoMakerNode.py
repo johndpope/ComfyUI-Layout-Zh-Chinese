@@ -115,6 +115,13 @@ class PhotoMaker_Batch_Zho:
         else:
             print("output 不是PyTorch张量（Tensor）")
 
+        if isinstance(output, tuple):
+            # 检查元组中的元素个数
+            num_elements = len(output)
+            print(f"output 是一个包含 {num_elements} 个元素的元组")
+        else:
+            print("output 不是一个元组")
+                
         
          # 检查输出类型并相应处理
         if isinstance(output, tuple):
