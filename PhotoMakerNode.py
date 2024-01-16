@@ -42,8 +42,8 @@ class PhotoMaker_Batch_Zho:
             }
         }
 
-    RETURN_TYPES = ("IMAGE",)
-    RETURN_NAMES = ("image",)
+    RETURN_TYPES = ("LATENT",)
+    RETURN_NAMES = ("latent",)
     FUNCTION = "process_images"
     CATEGORY = "📷PhotoMaker"
 
@@ -96,23 +96,19 @@ class PhotoMaker_Batch_Zho:
             start_merge_step=start_merge_step,
             generator=generator,
             guidance_scale=guidance_scale,
+            output_type="latent",  # 设置为返回潜在表示
             return_dict=False
         )
             
-        # 提取第一张图像（因为 num_images_per_prompt=1）
-        img = output[0][0]
+        # 提取潜在表示
+        latents = output.latents
 
-        # 如果不是 PIL.Image 格式，则进行转换
-        if not isinstance(img, Image.Image):
-            img = Image.fromarray(img)
+        # 检查输出类型，确保它是张量
+        if not isinstance(latents, torch.Tensor):
+            raise TypeError("Expected output to be a torch.Tensor for latent representations.")
 
-        # 确保图像是 RGB 格式
-        img = img.convert("RGB")
-
-        # 将处理好的图像放入列表中
-        processed_images = [img]
-
-        return processed_images
+        # 返回潜在表示张量
+        return latents
 
 
 
