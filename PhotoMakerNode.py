@@ -96,19 +96,27 @@ class PhotoMaker_Batch_Zho:
             start_merge_step=start_merge_step,
             generator=generator,
             guidance_scale=guidance_scale,
-            return_dict=True
+            return_dict=False
         )
             
-        # 检查 output 类型并相应处理
-        if isinstance(output, dict) and "images" in output:
-            # 如果 output 是字典并且包含 "images" 键
-            images = output["images"]
-        else:
-            # 如果 output 不是预期格式，抛出错误
-            raise TypeError("Unexpected output format from pipe function.")
+        # 提取第一张图像
+        img = output[0][0]  # output 是元组，其第一个元素是图像列表
 
-        # 返回图像列表
-        return images
+        # 确保图像是 RGB 格式
+        img = img.convert("RGB")
+
+        # 将 PIL.Image 转换为归一化的 torch.Tensor
+        img_tensor = torch.from_numpy(np.array(img).astype(np.float32) / 255.0)
+
+        # 转换张量格式为 CHW
+        img_tensor = img_tensor.permute(2, 0, 1)
+
+        # 添加批次维度
+        img_tensor = img_tensor.unsqueeze(0)
+
+        # 返回包含单个图像张量的列表
+        return [img_tensor]
+
 
 
 
