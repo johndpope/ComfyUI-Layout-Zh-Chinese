@@ -121,9 +121,8 @@ class PhotoMaker_Batch_Zho:
         # 转换图像格式为 CHW (如果需要)
         if img_tensor.ndim == 3 and img_tensor.shape[-1] == 3:
             img_tensor = img_tensor.permute(2, 0, 1)
-        images_tensors.append(img_tensor)
 
-        return images_tensors
+        return img_tensor
 
 # Dictionary to export the node
 NODE_CLASS_MAPPINGS = {
