@@ -68,7 +68,12 @@ class PhotoMaker_Batch_Zho:
         
         # Process images
         image_basename_list = os.listdir(ref_images_path)
-        image_path_list = sorted([os.path.join(ref_images_path, basename) for basename in image_basename_list])
+        #image_path_list = sorted([os.path.join(ref_images_path, basename) for basename in image_basename_list])
+        image_path_list = [
+            os.path.join(ref_images_path, basename) 
+            for basename in image_basename_list
+            if not basename.startswith('.') and basename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.webp'))  # 只包括有效的图像文件
+        ]
 
         input_id_images = [load_image(image_path) for image_path in image_path_list]
       
