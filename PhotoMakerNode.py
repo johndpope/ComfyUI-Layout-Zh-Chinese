@@ -121,7 +121,8 @@ class PhotoMaker_Batch_Zho:
             print(f"output 是一个包含 {num_elements} 个元素的元组")
         else:
             print("output 不是一个元组")
-                
+
+        img_tensor = None  # 在条件之外初始化img_tensor
 
         if isinstance(output, tuple) and len(output) == 1:
             image = output[0]  # 获取元组中的图像元素
