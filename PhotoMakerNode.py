@@ -108,7 +108,7 @@ class PhotoMaker_Batch_Zho:
             # 否则假设 output 已经是 numpy.ndarray 或 torch.Tensor 的列表
             images = output
 
-        return images
+        return (images,)
 
 # Dictionary to export the node
 NODE_CLASS_MAPPINGS = {
