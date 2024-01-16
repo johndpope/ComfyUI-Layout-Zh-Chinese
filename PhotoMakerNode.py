@@ -17,27 +17,26 @@ class PhotoMakerNode:
         p, n = styles.get(style_name, styles[PhotoMakerNode.DEFAULT_STYLE_NAME])
         return p.replace("{prompt}", positive), n + ' ' + negative
 
-    def __init__(self, base_model_path="SG161222/RealVisXL_V3.0", ref_images_path="./examples/newton_man"):
+    def __init__(self, base_model_path="SG161222/RealVisXL_V3.0", ref_images_path=None):
         self.base_model_path = base_model_path
         self.ref_images_path = ref_images_path
         self.photomaker_path = hf_hub_download(repo_id="TencentARC/PhotoMaker", filename="photomaker-v1.bin", repo_type="model")
         self.device = "cuda"
         self.pipe = self.initialize_model()
-        self.input_id_images = self.load_ref_images()
+        self.input_id_images = None
 
     def load_ref_images(self):
-        image_basename_list = os.listdir(self.ref_images_path)
-        image_path_list = [
-            os.path.join(ref_images_path, basename) 
-            for basename in image_basename_list
-            if not basename.startswith('.') and basename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.webp'))  # 只包括有效的图像文件
-        ]
+        if self.ref_images_path and os.path.exists(self.ref_images_path):
+            image_basename_list = os.listdir(self.ref_images_path)
+            image_path_list = sorted([os.path.join(self.ref_images_path, basename) for basename in image_basename_list])
 
-        input_id_images = []
-        for image_path in image_path_list:
-            input_id_images.append(load_image(image_path))
+            input_id_images = []
+            for image_path in image_path_list:
+                input_id_images.append(load_image(image_path))
 
-        return input_id_images
+            return input_id_images
+        else:
+            return []
 
     def initialize_model(self):
         # Load base model
@@ -84,7 +83,8 @@ class PhotoMakerNode:
     def generate_images(self, base_model_path, ref_images_path, prompt, negative_prompt, style_name, style_strength_ratio, num_steps, guidance_scale, seed):
         self.base_model_path = base_model_path
         self.ref_images_path = ref_images_path
-        self.input_id_images = self.load_ref_images()
+        self.pipe = self.initialize_model()  # Re-initialize the model with new path
+        self.input_id_images = self.load_ref_images()  # Reload reference images
 
         positive, negative = self.apply_style(style_name, prompt, negative_prompt)
         generator = torch.Generator(device=self.device).manual_seed(seed)
