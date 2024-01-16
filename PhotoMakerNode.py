@@ -99,17 +99,7 @@ class PhotoMaker_Batch_Zho:
             return_dict=False
         )
 
-        # 检查输出类型并相应处理
-        if isinstance(output, tuple):
-            # 当返回的是元组时，第一个元素是图像列表
-            img = output[0][0]  # 只取第一张图像
-        else:
-            # 如果返回的是 StableDiffusionXLPipelineOutput，需要从中提取图像
-            img = output.images[0]  # 只取第一张图像
-
-
-
-        return img
+        return output
 
 # Dictionary to export the node
 NODE_CLASS_MAPPINGS = {
