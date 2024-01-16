@@ -109,7 +109,7 @@ class PhotoMaker_Batch_Zho:
 
         image_tensor = transforms.ToTensor()(image)
 
-        return images_tensors
+        return image_tensor
 
 # Dictionary to export the node
 NODE_CLASS_MAPPINGS = {
