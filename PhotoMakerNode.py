@@ -102,17 +102,12 @@ class PhotoMaker_Batch_Zho:
         # 检查输出类型并相应处理
         if isinstance(output, tuple):
             # 当返回的是元组时，第一个元素是图像列表
-            images_list = output[0]
+            image = output[0]
         else:
             # 如果返回的是 StableDiffusionXLPipelineOutput，需要从中提取图像
-            images_list = output.images
+            image = output.images
 
-        # 转换图像为 torch.Tensor
-        images_tensors = []
-        for img in images_list:
-            # 直接将 PIL.Image 转换为 PyTorch 张量，并归一化到 [0, 1] 范围
-            img_tensor = transforms.ToTensor()(img)
-            images_tensors.append(img_tensor)
+        image_tensor = transforms.ToTensor()(image)
 
         return images_tensors
 
