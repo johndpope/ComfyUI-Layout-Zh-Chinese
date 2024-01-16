@@ -7,8 +7,9 @@ from diffusers import EulerDiscreteScheduler
 from .pipeline import PhotoMakerStableDiffusionXLPipeline
 from huggingface_hub import hf_hub_download
 from .style_template import styles
-from PIL import Image
+from PIL import Image, ImageOps
 import numpy as np
+import torch
 
 # global variable
 photomaker_path = hf_hub_download(repo_id="TencentARC/PhotoMaker", filename="photomaker-v1.bin", repo_type="model")
@@ -98,28 +99,31 @@ class PhotoMaker_Batch_Zho:
             return_dict=False
         )
 
-        # 根据返回类型提取图像
-        if isinstance(output, dict) and 'images' in output:
-        # 从字典中提取图像列表
-            images_list = output['images']
+        # 检查输出类型并相应处理
+        if isinstance(output, tuple):
+            # 当返回的是元组时，第一个元素是图像列表
+            image = output[0][0] # 只取第一张图像
         else:
-            raise TypeError("Unexpected output type from pipe function.")
+            # 如果返回的是 StableDiffusionXLPipelineOutput，需要从中提取图像
+            image = output.images[0] # 只取第一张图像
 
-        # 我们只需要一张图像
-        image = images_list[0] if isinstance(images_list, list) and len(images_list) > 0 else None
+        # Transpose image according to EXIF orientation and convert to RGB
+        img = ImageOps.exif_transpose(img)
+        img = img.convert("RGB")
+            
+        # Convert PIL.Image to a normalized torch.Tensor
+        img_tensor = torch.from_numpy(np.array(img).astype(np.float32) / 255.0)
+        
+        # 如果需要，更改张量的形状，使通道维度在前
+        #if img_tensor.ndim == 3 and img_tensor.shape[2] == 3:
+            #img_tensor = img_tensor.permute(2, 0, 1)
 
-        if image is None:
-            raise ValueError("No image was generated.")
+        # 添加批次维度
+        img_tensor = img_tensor.unsqueeze(0)
 
-        # 如果图像是 PIL.Image 对象，转换为 torch.Tensor
-        if isinstance(image, Image.Image):
-            image_tensor = torch.from_numpy(np.array(image)).permute(2, 0, 1).float() / 255.0
-            image_tensor = image_tensor.unsqueeze(0)  # 增加批次维度
-        else:
-            raise TypeError("Generated image is not a PIL.Image object.")
+        # 返回图像张量
+        return img_tensor
 
-        # 返回一个包含单个 torch.Tensor 的列表
-        return [image_tensor]
 
 # Dictionary to export the node
 NODE_CLASS_MAPPINGS = {
