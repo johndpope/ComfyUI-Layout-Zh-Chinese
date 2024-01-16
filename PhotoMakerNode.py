@@ -96,50 +96,14 @@ class PhotoMaker_Batch_Zho:
             start_merge_step=start_merge_step,
             generator=generator,
             guidance_scale=guidance_scale,
-            return_dict=False
+            return_dict=True
         )
             
         output_type = type(output)
         print(output_type)
             
-        if isinstance(output, Image.Image):
-            print("output 是PIL图像")
-        else:
-            print("output 不是PIL图像")
-        if isinstance(output, np.ndarray):
-            print("output 是NumPy数组")
-        else:
-            print("output 不是NumPy数组")
-        if isinstance(output, torch.Tensor):
-            print("output 是PyTorch张量（Tensor）")
-        else:
-            print("output 不是PyTorch张量（Tensor）")
+        return output
 
-        if isinstance(output, tuple):
-            # 检查元组中的元素个数
-            num_elements = len(output)
-            print(f"output 是一个包含 {num_elements} 个元素的元组")
-        else:
-            print("output 不是一个元组")
-
-
-        if isinstance(output, tuple) and len(output) == 1:
-            image = output[0]  # 获取元组中的图像元素
-            # 继续处理图像，确保它是彩色图像
-            if isinstance(image, Image.Image) and image.mode == "RGB":
-                # 转换图像为 torch.Tensor
-                img = image.convert("RGB")  # 确保图像是RGB模式
-                img_array = np.array(img)
-                img_tensor = torch.from_numpy(img_array).float() / 255.
-                # 转换图像格式为 CHW (如果需要)
-                if img_tensor.ndim == 3 and img_tensor.shape[-1] == 3:
-                    img_tensor = img_tensor.permute(2, 0, 1)
-                # 在这里继续处理 img_tensor，它是PyTorch张量
-                return img_tensor
-            else:
-                print("元组中的元素不是彩色图像")
-        else:
-            print("output 不符合预期的元组结构")
 
 
 # Dictionary to export the node
