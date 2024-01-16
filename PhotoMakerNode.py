@@ -7,10 +7,10 @@ from huggingface_hub import hf_hub_download
 from diffusers.utils import load_image
 from .style_template import styles
 
-class PhotoMakerNode:
+STYLE_NAMES = list(styles.keys())
+DEFAULT_STYLE_NAME = "Photographic (Default)"
 
-    STYLE_NAMES = list(styles.keys())
-    DEFAULT_STYLE_NAME = "Photographic (Default)"
+class PhotoMakerNode:
 
     @staticmethod
     def apply_style(style_name: str, positive: str, negative: str = "") -> tuple[str, str]:
