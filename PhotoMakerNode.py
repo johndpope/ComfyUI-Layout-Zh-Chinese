@@ -98,27 +98,28 @@ class PhotoMaker_Batch_Zho:
             return_dict=False
         )
 
-        # 检查输出类型并相应处理
-        if isinstance(output, tuple):
-            # 当返回的是元组时，第一个元素是图像列表
-            images_list = output[0]
+        # 根据返回类型提取图像
+        if isinstance(output, dict) and 'images' in output:
+        # 从字典中提取图像列表
+            images_list = output['images']
         else:
-            # 如果返回的是 StableDiffusionXLPipelineOutput，需要从中提取图像
-            images_list = output.images
+            raise TypeError("Unexpected output type from pipe function.")
 
-        # 转换图像为 torch.Tensor
-        images_tensors = []
-        for img in images_list:
-            # 将 PIL.Image 转换为 numpy.ndarray
-            img_array = np.array(img)
-            # 转换 numpy.ndarray 为 torch.Tensor
-            img_tensor = torch.from_numpy(img_array).float() / 255.
-            # 转换图像格式为 CHW (如果需要)
-            if img_tensor.ndim == 3 and img_tensor.shape[-1] == 3:
-                img_tensor = img_tensor.permute(2, 0, 1)
-            images_tensors.append(img_tensor)
+        # 我们只需要一张图像
+        image = images_list[0] if isinstance(images_list, list) and len(images_list) > 0 else None
 
-        return images_tensors
+        if image is None:
+            raise ValueError("No image was generated.")
+
+        # 如果图像是 PIL.Image 对象，转换为 torch.Tensor
+        if isinstance(image, Image.Image):
+            image_tensor = torch.from_numpy(np.array(image)).permute(2, 0, 1).float() / 255.0
+            image_tensor = image_tensor.unsqueeze(0)  # 增加批次维度
+        else:
+            raise TypeError("Generated image is not a PIL.Image object.")
+
+        # 返回一个包含单个 torch.Tensor 的列表
+        return [image_tensor]
 
 # Dictionary to export the node
 NODE_CLASS_MAPPINGS = {
