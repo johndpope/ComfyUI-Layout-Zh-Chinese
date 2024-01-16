@@ -106,6 +106,14 @@ class PhotoMaker_Batch_Zho:
         else:
             # 如果返回的是 StableDiffusionXLPipelineOutput，需要从中提取图像
             image = output.images
+                
+        # 确保图像是PIL Image
+        if not isinstance(image, Image.Image):
+            # 如果不是PIL Image，则尝试打开它
+            try:
+                image = Image.open(image)
+            except Exception as e:
+                raise ValueError(f"Unable to open image: {str(e)}")
 
         image_tensor = transforms.ToTensor()(image)
 
