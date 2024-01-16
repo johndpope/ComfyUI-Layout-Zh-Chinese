@@ -97,7 +97,7 @@ class PhotoMaker_Batch_Zho:
             generator=generator,
             guidance_scale=guidance_scale,
             output_type="latent",  # 设置为返回潜在表示
-            return_dict=False
+            return_dict=True
         )
             
         # 提取潜在表示
