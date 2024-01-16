@@ -107,22 +107,20 @@ class PhotoMaker_Batch_Zho:
             # 如果返回的是 StableDiffusionXLPipelineOutput，需要从中提取图像
             img = output.images[0]  # 只取第一张图像
 
-        # 将 PIL.Image 转换为 numpy.ndarray
-        img_array = np.array(img)
+        # 确保图像为RGB模式
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
 
-        # 确保图像为三维数组 (高, 宽, 颜色通道)
-        if img_array.ndim == 2:
-            img_array = np.expand_dims(img_array, axis=-1)  # 将黑白图像转换为单通道
+        # 将PIL.Image转换为归一化的numpy数组
+        img_array = np.array(img).astype(np.float32) / 255.0
 
-        # 将 numpy.ndarray 转换为 torch.Tensor
-        img_tensor = torch.from_numpy(img_array).float() / 255.
+        # 转换numpy数组为torch张量，并调整通道顺序
+        img_tensor = torch.from_numpy(img_array).permute(2, 0, 1)
 
-        # 转换图像格式为 CHW (通道, 高, 宽)
-        if img_tensor.shape[-1] == 3 or img_tensor.shape[-1] == 1:
-            img_tensor = img_tensor.permute(2, 0, 1)
+        # 添加一个批次维度
+        img_tensor = img_tensor.unsqueeze(0)
 
-        # 返回图像张量
-        return img_tensor.unsqueeze(0)  # 添加批次维度
+        return img_tensor
 
 # Dictionary to export the node
 NODE_CLASS_MAPPINGS = {
