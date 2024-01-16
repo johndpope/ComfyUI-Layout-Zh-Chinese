@@ -113,9 +113,9 @@ class PhotoMaker_Batch_Zho:
 
         # 将PIL.Image转换为归一化的numpy数组
         img_array = np.array(img).astype(np.float32) / 255.0
-
-        # 转换numpy数组为torch张量，并调整通道顺序
-        img_tensor = torch.from_numpy(img_array).permute(2, 0, 1)
+        
+        # 转换numpy数组为torch张量（不调整通道顺序）
+        img_tensor = torch.from_numpy(img_array)
 
         # 添加一个批次维度
         img_tensor = img_tensor.unsqueeze(0)
