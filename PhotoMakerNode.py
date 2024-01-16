@@ -2,6 +2,7 @@
 import torch
 import os
 import folder_paths
+from torchvision import transforms
 from diffusers.utils import load_image
 from diffusers import EulerDiscreteScheduler
 from .pipeline import PhotoMakerStableDiffusionXLPipeline
@@ -109,13 +110,8 @@ class PhotoMaker_Batch_Zho:
         # 转换图像为 torch.Tensor
         images_tensors = []
         for img in images_list:
-            # 将 PIL.Image 转换为 numpy.ndarray
-            img_array = np.array(img)
-            # 转换 numpy.ndarray 为 torch.Tensor
-            img_tensor = torch.from_numpy(img_array).float() / 255.
-            # 转换图像格式为 CHW (如果需要)
-            if img_tensor.ndim == 3 and img_tensor.shape[-1] == 3:
-                img_tensor = img_tensor.permute(2, 0, 1)
+            # 直接将 PIL.Image 转换为 PyTorch 张量，并归一化到 [0, 1] 范围
+            img_tensor = transforms.ToTensor()(img)
             images_tensors.append(img_tensor)
 
         return images_tensors
