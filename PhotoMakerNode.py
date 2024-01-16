@@ -87,7 +87,7 @@ class PhotoMaker_Batch_Zho:
 
         generator = torch.Generator(device=device).manual_seed(seed)
 
-        output = pipe(
+        images = pipe(
             prompt=prompt,
             input_id_images=input_id_images,
             negative_prompt=negative_prompt,
@@ -97,9 +97,9 @@ class PhotoMaker_Batch_Zho:
             generator=generator,
             guidance_scale=guidance_scale,
             return_dict=False
-        )
+        ).images
 
-        return output
+        return images
 
 # Dictionary to export the node
 NODE_CLASS_MAPPINGS = {
