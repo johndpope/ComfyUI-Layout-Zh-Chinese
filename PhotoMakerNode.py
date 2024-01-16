@@ -96,22 +96,33 @@ class PhotoMaker_Batch_Zho:
             start_merge_step=start_merge_step,
             generator=generator,
             guidance_scale=guidance_scale,
-            output_type="latent",  # 设置为返回潜在表示
-            return_dict=True
+            return_dict=False
         )
-            
-        # 提取潜在表示
-        latents = output.latents
 
-        # 检查输出类型，确保它是张量
-        if not isinstance(latents, torch.Tensor):
-            raise TypeError("Expected output to be a torch.Tensor for latent representations.")
+        # 检查输出类型并相应处理
+        if isinstance(output, tuple):
+            # 当返回的是元组时，第一个元素是图像列表
+            img = output[0][0]  # 只取第一张图像
+        else:
+            # 如果返回的是 StableDiffusionXLPipelineOutput，需要从中提取图像
+            img = output.images[0]  # 只取第一张图像
 
-        # 返回潜在表示张量
-        return latents
+        # 将 PIL.Image 转换为 numpy.ndarray
+        img_array = np.array(img)
 
+        # 确保图像为三维数组 (高, 宽, 颜色通道)
+        if img_array.ndim == 2:
+            img_array = np.expand_dims(img_array, axis=-1)  # 将黑白图像转换为单通道
 
+        # 将 numpy.ndarray 转换为 torch.Tensor
+        img_tensor = torch.from_numpy(img_array).float() / 255.
 
+        # 转换图像格式为 CHW (通道, 高, 宽)
+        if img_tensor.shape[-1] == 3 or img_tensor.shape[-1] == 1:
+            img_tensor = img_tensor.permute(2, 0, 1)
+
+        # 返回图像张量
+        return img_tensor.unsqueeze(0)  # 添加批次维度
 
 # Dictionary to export the node
 NODE_CLASS_MAPPINGS = {
