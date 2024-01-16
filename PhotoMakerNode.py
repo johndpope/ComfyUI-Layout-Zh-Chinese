@@ -42,8 +42,8 @@ class PhotoMaker_Batch_Zho:
             }
         }
 
-    RETURN_TYPES = ("LATENT",)
-    RETURN_NAMES = ("latent",)
+    RETURN_TYPES = ("IMAGE",)
+    RETURN_NAMES = ("image",)
     FUNCTION = "process_images"
     CATEGORY = "📷PhotoMaker"
 
