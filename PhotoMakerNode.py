@@ -97,9 +97,15 @@ class PhotoMaker_Batch_Zho:
             guidance_scale=guidance_scale,
         )
 
-        images = np.array(output)
+        # 确保 output 是 PIL.Image 对象，然后转换为 numpy.ndarray
+        if isinstance(output, Image.Image):
+            image_array = np.array(output)
+        else:
+            # 如果 output 不是预期的 PIL.Image 对象，需要处理这种情况
+            raise TypeError("Unexpected output type from pipe function.")
 
-        return [images]
+        # 将图像数组放入列表中返回
+        return [image_array]
 
 # Dictionary to export the node
 NODE_CLASS_MAPPINGS = {
