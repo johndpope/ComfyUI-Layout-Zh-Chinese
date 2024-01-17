@@ -67,7 +67,7 @@ class PhotoMaker_Zho:
         pipe.fuse_lora()
         
         # Process images
-        image_np = (255. * tensor_image.cpu().numpy().squeeze()).clip(0, 255).astype(np.uint8)
+        image_np = (255. * ref_image.cpu().numpy().squeeze()).clip(0, 255).astype(np.uint8)
         pil_image = Image.fromarray(image_np)
         input_id_images = []
         input_id_images.append(pil_image)
