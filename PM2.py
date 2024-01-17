@@ -39,7 +39,7 @@ class BaseModelLoaderNode_Zho:
     FUNCTION = "load_model"
     CATEGORY = "📷PhotoMaker"
   
-    def load_model(self):
+    def load_model(self, base_model_path):
         # Code to load the base model
         pipe = PhotoMakerStableDiffusionXLPipeline.from_pretrained(
             self.base_model_path,
