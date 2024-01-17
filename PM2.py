@@ -51,10 +51,8 @@ class BaseModelLoaderNode_Zho:
 
 
 class PhotoMakerAdapterLoaderNode_Zho:
-    def __init__(self, repo_id, filename, pipe):
-        self.repo_id = repo_id
-        self.filename = filename
-        self.pipe = pipe
+    def __init__(self):
+        pass
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -70,24 +68,25 @@ class PhotoMakerAdapterLoaderNode_Zho:
     FUNCTION = "load_photomaker_adapter"
     CATEGORY = "📷PhotoMaker"
 
-    def load_photomaker_adapter(self):
+    def load_photomaker_adapter(self, repo_id, filename, pipe):
         # 使用hf_hub_download方法获取PhotoMaker文件的路径
         photomaker_path = hf_hub_download(
-            repo_id=self.repo_id,
-            filename=self.filename,
+            repo_id = repo_id,
+            filename = filename,
+            pipe = pipe,
             repo_type="model"
         )
 
         # 加载PhotoMaker检查点
-        self.pipe.load_photomaker_adapter(
+        pipe.load_photomaker_adapter(
             os.path.dirname(photomaker_path),
             subfolder="",
             weight_name=os.path.basename(photomaker_path),
             trigger_word="img"
         )
-        self.pipe.scheduler = EulerDiscreteScheduler.from_config(self.pipe.scheduler.config)
-        self.pipe.fuse_lora()
-        return self.pipe
+        pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
+        pipe.fuse_lora()
+        return [pipe]
 
 
 class ImagePreprocessingNode_Zho:
