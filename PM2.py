@@ -23,8 +23,8 @@ def apply_style(style_name: str, positive: str, negative: str = "") -> tuple[str
 
 
 class BaseModelLoaderNode_Zho:
-    def __init__(self, base_model_path):
-        self.base_model_path = base_model_path
+    def __init__(self):
+        pass
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -42,7 +42,7 @@ class BaseModelLoaderNode_Zho:
     def load_model(self, base_model_path):
         # Code to load the base model
         pipe = PhotoMakerStableDiffusionXLPipeline.from_pretrained(
-            self.base_model_path,
+            base_model_path,
             torch_dtype=torch.bfloat16,
             use_safetensors=True,
             variant="fp16"
