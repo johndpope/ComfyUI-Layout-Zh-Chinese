@@ -100,9 +100,11 @@ class ImagePreprocessingNode_Zho:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "ref_image": ("IMAGE",),  # 单张图像
                 "ref_images_path": ("STRING", {"default": "path/to/images"}),  # 图像文件夹路径
-                "mode": (["single", "multiple"], {"default": "single"})  # 选择模式
+                "mode": (["single", "multiple"], {"default": "multiple"})  # 选择模式
+            },
+            "optional": {
+                "ref_image": ("IMAGE",)  # 单张图像（可选）
             }
         }
 
@@ -110,8 +112,13 @@ class ImagePreprocessingNode_Zho:
     FUNCTION = "preprocess_image"
     CATEGORY = "📷PhotoMaker"
   
-    def preprocess_image(self):
-        if self.mode == "single":
+    def preprocess_image(self, ref_image=None, ref_images_path=None, mode="single"):
+        # 使用传入的参数更新类属性
+        self.ref_image = ref_image if ref_image is not None else self.ref_image
+        self.ref_images_path = ref_images_path if ref_images_path is not None else self.ref_images_path
+        self.mode = mode
+
+        if self.mode == "single" and self.ref_image is not None:
             # 单张图像处理
             image_np = (255. * self.ref_image.cpu().numpy().squeeze()).clip(0, 255).astype(np.uint8)
             pil_image = Image.fromarray(image_np)
