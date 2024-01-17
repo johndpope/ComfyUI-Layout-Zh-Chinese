@@ -1,5 +1,9 @@
-from .AnyText.cldm.model import create_model, load_state_dict
+#from .AnyText.cldm.model import create_model, load_state_dict
 from modelscope.pipelines import pipeline
+
+import sys
+sys.path.append("./AnyText/cldm")
+
 
 class AnyTextNode_Zho:
   
