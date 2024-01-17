@@ -29,7 +29,7 @@ class PhotoMaker_Zho:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "ref_image": ("IMAGE",)
+                "ref_image": ("IMAGE",),
                 "base_model_path": ("STRING", {"default": "SG161222/RealVisXL_V3.0", "multiline": False}),
                 "prompt": ("STRING", {"default": "sci-fi, closeup portrait photo of a man img wearing the sunglasses in Iron man suit, face, slim body, high quality, film grain", "multiline": True}),
                 "negative_prompt": ("STRING", {"default": "asymmetry, worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth", "multiline": True}),
