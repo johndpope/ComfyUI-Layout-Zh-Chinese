@@ -47,7 +47,7 @@ class BaseModelLoaderNode_Zho:
             use_safetensors=True,
             variant="fp16"
         ).to(device)
-        return pipe
+        return [pipe]
 
 
 class PhotoMakerAdapterLoaderNode_Zho:
