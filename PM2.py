@@ -154,7 +154,7 @@ class CompositeImageGenerationNode_Zho:
             }
         }
 
-    RETURN_TYPES = ("IMAGE",)
+    RETURN_TYPES = ("LATENT",)
     FUNCTION = "generate_image"
     CATEGORY = "📷PhotoMaker"
 
@@ -177,9 +177,15 @@ class CompositeImageGenerationNode_Zho:
             start_merge_step=start_merge_step,
             generator=generator,
             guidance_scale=guidance_scale,
+            output_type="latent", 
             return_dict=False
         )
-      
+            
+        return output
+
+
+
+r"""
         # 检查输出类型并相应处理
         if isinstance(output, tuple):
             # 当返回的是元组时，第一个元素是图像列表
@@ -203,7 +209,7 @@ class CompositeImageGenerationNode_Zho:
             images_tensors.append(img_tensor)
 
         return images_tensors
-
+"""
 
 NODE_CLASS_MAPPINGS = {
     "BaseModel_Loader": BaseModelLoaderNode_Zho,
