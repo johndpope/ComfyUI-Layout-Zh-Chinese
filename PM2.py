@@ -113,20 +113,20 @@ class ImagePreprocessingNode_Zho:
   
     def preprocess_image(self, ref_image=None, ref_images_path=None, mode="single"):
         # 使用传入的参数更新类属性
-        self.ref_image = ref_image if ref_image is not None else self.ref_image
-        self.ref_images_path = ref_images_path if ref_images_path is not None else self.ref_images_path
-        self.mode = mode
+        ref_image = ref_image if ref_image is not None else ref_image
+        ref_images_path = ref_images_path if ref_images_path is not None else ref_images_path
+        mode = mode
 
-        if self.mode == "single" and self.ref_image is not None:
+        if mode == "single" and ref_image is not None:
             # 单张图像处理
-            image_np = (255. * self.ref_image.cpu().numpy().squeeze()).clip(0, 255).astype(np.uint8)
+            image_np = (255. * ref_image.cpu().numpy().squeeze()).clip(0, 255).astype(np.uint8)
             pil_image = Image.fromarray(image_np)
             return [pil_image]
-        elif self.mode == "multiple":
+        elif mode == "multiple":
             # 多张图像路径处理
-            image_basename_list = os.listdir(self.ref_images_path)
+            image_basename_list = os.listdir(ref_images_path)
             image_path_list = [
-                os.path.join(self.ref_images_path, basename) 
+                os.path.join(ref_images_path, basename) 
                 for basename in image_basename_list
                 if not basename.startswith('.') and basename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.webp'))
             ]
@@ -136,16 +136,8 @@ class ImagePreprocessingNode_Zho:
 
 
 class CompositeImageGenerationNode_Zho:
-    def __init__(self, style_name, style_strength_ratio, steps, seed, prompt, negative_prompt, guidance_scale, pil_image, pipe):
-        self.style_name = style_name
-        self.style_strength_ratio = style_strength_ratio
-        self.steps = steps
-        self.seed = seed
-        self.prompt = prompt
-        self.negative_prompt = negative_prompt
-        self.guidance_scale = guidance_scale
-        self.pil_image = pil_image
-        self.pipe = pipe
+    def __init__(self):
+        pass
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -167,25 +159,25 @@ class CompositeImageGenerationNode_Zho:
     FUNCTION = "generate_image"
     CATEGORY = "📷PhotoMaker"
 
-    def generate_image(self):
+    def generate_image(self, style_name, style_strength_ratio, steps, seed, prompt, negative_prompt, guidance_scale, pil_image, pipe):
         # Code for the remaining process including style template application, merge step calculation, etc.
-        prompt, negative_prompt = apply_style(self.style_name, self.prompt, self.negative_prompt)
+        prompt, negative_prompt = apply_style(style_name, prompt, negative_prompt)
         
-        start_merge_step = int(float(self.style_strength_ratio) / 100 * self.steps)
+        start_merge_step = int(float(style_strength_ratio) / 100 * steps)
         if start_merge_step > 30:
             start_merge_step = 30
 
-        generator = torch.Generator(device=device).manual_seed(self.seed)
+        generator = torch.Generator(device=device).manual_seed(seed)
 
-        output = self.pipe(
-            prompt=self.prompt,
-            input_id_images=[self.pil_image],
-            negative_prompt=self.negative_prompt,
+        output = pipe(
+            prompt=prompt,
+            input_id_images=[pil_image],
+            negative_prompt=negative_prompt,
             num_images_per_prompt=1,
-            num_inference_steps=self.steps,
+            num_inference_steps=steps,
             start_merge_step=start_merge_step,
             generator=generator,
-            guidance_scale=self.guidance_scale,
+            guidance_scale=guidance_scale,
             return_dict=False
         )
       
