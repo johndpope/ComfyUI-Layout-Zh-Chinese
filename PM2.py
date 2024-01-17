@@ -147,7 +147,7 @@ class CompositeImageGenerationNode_Zho:
                 "style_name": (STYLE_NAMES, {"default": DEFAULT_STYLE_NAME}),
                 "style_strength_ratio": ("INT", {"default": 20, "min": 1, "max": 50, "display": "slider"}),
                 "steps": ("INT", {"default": 50, "min": 1, "max": 100, "step": 1, "display": "slider"}),
-                "guidance_scale": ("FLOAT", {"default": 7.5, "min": 0, "max": 10}),
+                "guidance_scale": ("FLOAT", {"default": 5, "min": 0, "max": 10}),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                 "pil_image": ("IMAGE",),
                 "pipe": ("MODEL",)
