@@ -106,7 +106,7 @@ class PhotoMaker_Batch_Zho:
             # 如果返回的是 StableDiffusionXLPipelineOutput，需要从中提取图像
             images_list = output.images
 
-        # 转换图像为 torch.Tensor
+        # 转换图像为 torch.Tensor，并调整维度顺序为 NHWC
         images_tensors = []
         for img in images_list:
             # 将 PIL.Image 转换为 numpy.ndarray
@@ -116,6 +116,8 @@ class PhotoMaker_Batch_Zho:
             # 转换图像格式为 CHW (如果需要)
             if img_tensor.ndim == 3 and img_tensor.shape[-1] == 3:
                 img_tensor = img_tensor.permute(2, 0, 1)
+            # 添加批次维度并转换为 NHWC
+            img_tensor = img_tensor.unsqueeze(0).permute(0, 2, 3, 1)
             images_tensors.append(img_tensor)
 
         return images_tensors
