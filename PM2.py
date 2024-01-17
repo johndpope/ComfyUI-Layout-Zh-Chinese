@@ -73,7 +73,6 @@ class PhotoMakerAdapterLoaderNode_Zho:
         photomaker_path = hf_hub_download(
             repo_id = repo_id,
             filename = filename,
-            pipe = pipe,
             repo_type="model"
         )
 
