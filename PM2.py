@@ -22,7 +22,7 @@ def apply_style(style_name: str, positive: str, negative: str = "") -> tuple[str
         return p.replace("{prompt}", positive), n + ' ' + negative
 
 
-class BaseModelLoaderNode_Zho:
+class BaseModelLoader_fromhub_Node_Zho:
     def __init__(self):
         pass
 
@@ -42,6 +42,34 @@ class BaseModelLoaderNode_Zho:
     def load_model(self, base_model_path):
         # Code to load the base model
         pipe = PhotoMakerStableDiffusionXLPipeline.from_pretrained(
+            base_model_path,
+            torch_dtype=torch.bfloat16,
+            use_safetensors=True,
+            variant="fp16"
+        ).to(device)
+        return [pipe]
+
+
+class BaseModelLoader_local_Node_Zho:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "base_model_path": ("STRING", {"default": ""})
+            }
+        }
+
+    RETURN_TYPES = ("MODEL",)
+    RETURN_NAMES = ("pipe",)
+    FUNCTION = "load_model"
+    CATEGORY = "📷PhotoMaker"
+  
+    def load_model(self, base_model_path):
+        # Code to load the base model
+        pipe = PhotoMakerStableDiffusionXLPipeline.from_single_file(
             base_model_path,
             torch_dtype=torch.bfloat16,
             use_safetensors=True,
@@ -154,7 +182,7 @@ class CompositeImageGenerationNode_Zho:
             }
         }
 
-    RETURN_TYPES = ("LATENT",)
+    RETURN_TYPES = ("IMAGE",)
     FUNCTION = "generate_image"
     CATEGORY = "📷PhotoMaker"
 
@@ -180,20 +208,7 @@ class CompositeImageGenerationNode_Zho:
             output_type="latent", 
             return_dict=False
         )
-            
-        # output 现在是一个 StableDiffusionXLPipelineOutput 对象
-        # 提取潜在向量
-        latents = output.images
 
-        # 准备传递给 VAEDecode 的数据
-        vaedecode_input = {"samples": latents}
-
-        # 这个 vaedecode_input 字典现在可以直接被 VAEDecode 节点使用
-        return vaedecode_input
-
-
-
-r"""
         # 检查输出类型并相应处理
         if isinstance(output, tuple):
             # 当返回的是元组时，第一个元素是图像列表
@@ -217,17 +232,20 @@ r"""
             images_tensors.append(img_tensor)
 
         return images_tensors
-"""
+
+
 
 NODE_CLASS_MAPPINGS = {
-    "BaseModel_Loader": BaseModelLoaderNode_Zho,
+    "BaseModel_Loader_fromhub": BaseModelLoader_fromhub_Node_Zho,
+    "BaseModel_Loader_local": BaseModelLoader_local_Node_Zho,
     "PhotoMakerAdapter_Loader": PhotoMakerAdapterLoaderNode_Zho,
     "Ref_Image_Preprocessing": ImagePreprocessingNode_Zho,
     "PhotoMaker_Generation": CompositeImageGenerationNode_Zho
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "BaseModel_Loader": "📷Base Model Loader",
+    "BaseModel_Loader_fromhub": "📷Base Model Loader from hub",
+    "BaseModel_Loader_local": "📷Base Model Loader locally",
     "PhotoMakerAdapter_Loader": "📷PhotoMaker Adapter Loader",
     "Ref_Image_Preprocessing": "📷Ref Image Preprocessing",
     "PhotoMaker_Generation": "📷PhotoMaker Generation"
