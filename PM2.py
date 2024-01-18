@@ -58,7 +58,7 @@ class BaseModelLoader_local_Node_Zho:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "base_model_path": ("STRING", {"default": ""})
+                "required": { "ckpt_name": (folder_paths.get_filename_list("checkpoints"), ),
             }
         }
 
@@ -67,10 +67,10 @@ class BaseModelLoader_local_Node_Zho:
     FUNCTION = "load_model"
     CATEGORY = "📷PhotoMaker"
   
-    def load_model(self, base_model_path):
+    def load_model(self, ckpt_name):
         # Code to load the base model
         pipe = PhotoMakerStableDiffusionXLPipeline.from_single_file(
-            base_model_path,
+            base_model_path=folder_paths.get_full_path("checkpoints", ckpt_name),
             torch_dtype=torch.bfloat16,
             use_safetensors=True,
             variant="fp16"
@@ -124,7 +124,7 @@ class PhotoMakerAdapterLoader_local_Node_Zho:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "pm_model_path": ("STRING", {"default": ""}),
+                "pm_model_path": ("STRING", {"default": "enter your photomaker model path"}),
                 "filename": ("STRING", {"default": "photomaker-v1.bin"}),
                 "pipe": ("MODEL",)
             }
