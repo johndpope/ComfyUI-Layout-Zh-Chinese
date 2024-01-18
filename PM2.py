@@ -219,6 +219,8 @@ class CompositeImageGenerationNode_Zho:
                 "steps": ("INT", {"default": 50, "min": 1, "max": 100, "step": 1, "display": "slider"}),
                 "guidance_scale": ("FLOAT", {"default": 5, "min": 0, "max": 10}),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
+                "width": ("INT", {"default": 1024, "min": 512, "max": 2048, "step": 32}),
+                "height": ("INT", {"default": 1024, "min": 512, "max": 2048, "step": 32}), 
                 "pipe": ("MODEL",),
                 "pil_image": ("IMAGE",)
             }
@@ -228,7 +230,7 @@ class CompositeImageGenerationNode_Zho:
     FUNCTION = "generate_image"
     CATEGORY = "📷PhotoMaker"
 
-    def generate_image(self, style_name, style_strength_ratio, steps, seed, prompt, negative_prompt, guidance_scale, pil_image, pipe):
+    def generate_image(self, style_name, style_strength_ratio, steps, seed, prompt, negative_prompt, guidance_scale, pil_image, pipe, width, height):
         # Code for the remaining process including style template application, merge step calculation, etc.
         prompt, negative_prompt = apply_style(style_name, prompt, negative_prompt)
         
@@ -247,6 +249,8 @@ class CompositeImageGenerationNode_Zho:
             start_merge_step=start_merge_step,
             generator=generator,
             guidance_scale=guidance_scale, 
+            width=width,
+            height=height,
             return_dict=False
         )
 
