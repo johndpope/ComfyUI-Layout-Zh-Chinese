@@ -69,8 +69,16 @@ class BaseModelLoader_local_Node_Zho:
   
     def load_model(self, ckpt_name):
         # Code to load the base model
+        if not ckpt_name:
+            raise ValueError("Please provide the ckpt_name parameter with the name of the checkpoint file.")
+
+        ckpt_path = folder_paths.get_full_path("checkpoints", ckpt_name)
+            
+        if not os.path.exists(ckpt_path):
+            raise FileNotFoundError(f"Checkpoint file {ckpt_path} not found.")
+                
         pipe = PhotoMakerStableDiffusionXLPipeline.from_single_file(
-            base_model_path=folder_paths.get_full_path("checkpoints", ckpt_name),
+            pretrained_model_link_or_path=ckpt_path,
             torch_dtype=torch.bfloat16,
             use_safetensors=True,
             variant="fp16"
