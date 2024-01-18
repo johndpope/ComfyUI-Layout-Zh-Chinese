@@ -78,7 +78,7 @@ class BaseModelLoader_local_Node_Zho:
         return [pipe]
 
 
-class PhotoMakerAdapterLoaderNode_Zho:
+class PhotoMakerAdapterLoader_fromhub_Node_Zho:
     def __init__(self):
         pass
 
@@ -103,6 +103,40 @@ class PhotoMakerAdapterLoaderNode_Zho:
             filename = filename,
             repo_type="model"
         )
+
+        # 加载PhotoMaker检查点
+        pipe.load_photomaker_adapter(
+            os.path.dirname(photomaker_path),
+            subfolder="",
+            weight_name=os.path.basename(photomaker_path),
+            trigger_word="img"
+        )
+        pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
+        pipe.fuse_lora()
+        return [pipe]
+
+
+class PhotoMakerAdapterLoader_local_Node_Zho:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "pm_model_path": ("STRING", {"default": ""}),
+                "filename": ("STRING", {"default": "photomaker-v1.bin"}),
+                "pipe": ("MODEL",)
+            }
+        }
+
+    RETURN_TYPES = ("MODEL",)
+    FUNCTION = "load_photomaker_adapter"
+    CATEGORY = "📷PhotoMaker"
+
+    def load_photomaker_adapter(self, pm_model_path, filename, pipe):
+        # 拼接完整的模型路径
+        photomaker_path = os.path.join(pm_model_path, filename)
 
         # 加载PhotoMaker检查点
         pipe.load_photomaker_adapter(
@@ -233,19 +267,20 @@ class CompositeImageGenerationNode_Zho:
         return images_tensors
 
 
-
 NODE_CLASS_MAPPINGS = {
     "BaseModel_Loader_fromhub": BaseModelLoader_fromhub_Node_Zho,
     "BaseModel_Loader_local": BaseModelLoader_local_Node_Zho,
-    "PhotoMakerAdapter_Loader": PhotoMakerAdapterLoaderNode_Zho,
+    "PhotoMakerAdapter_Loader_fromhub": PhotoMakerAdapterLoader_fromhub_Node_Zho,
+    "PhotoMakerAdapter_Loader_local": PhotoMakerAdapterLoader_local_Node_Zho,
     "Ref_Image_Preprocessing": ImagePreprocessingNode_Zho,
     "PhotoMaker_Generation": CompositeImageGenerationNode_Zho
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "BaseModel_Loader_fromhub": "📷Base Model Loader from hub",
+    "BaseModel_Loader_fromhub": "📷Base Model Loader from hub🤗",
     "BaseModel_Loader_local": "📷Base Model Loader locally",
-    "PhotoMakerAdapter_Loader": "📷PhotoMaker Adapter Loader",
+    "PhotoMakerAdapter_Loader_fromhub": "📷PhotoMaker Adapter Loader from hub🤗",
+    "PhotoMakerAdapter_Loader_local": "📷PhotoMaker Adapter Loader locally",
     "Ref_Image_Preprocessing": "📷Ref Image Preprocessing",
     "PhotoMaker_Generation": "📷PhotoMaker Generation"
 }
