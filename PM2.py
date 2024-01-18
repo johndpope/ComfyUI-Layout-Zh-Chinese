@@ -58,7 +58,7 @@ class BaseModelLoader_local_Node_Zho:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "required": { "ckpt_name": (folder_paths.get_filename_list("checkpoints"), ),
+                "ckpt_name": (folder_paths.get_filename_list("checkpoints"), )
             }
         }
 
