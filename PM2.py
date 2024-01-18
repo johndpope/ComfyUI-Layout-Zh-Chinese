@@ -77,7 +77,7 @@ class BaseModelLoader_local_Node_Zho:
         if not os.path.exists(ckpt_path):
             raise FileNotFoundError(f"Checkpoint file {ckpt_path} not found.")
                 
-        pipe = PhotoMakerStableDiffusionXLPipeline.from_single_file(
+        pipe = PhotoMakerStableDiffusionXLPipeline.from_direct_Input_file(
             pretrained_model_link_or_path=ckpt_path,
             torch_dtype=torch.bfloat16,
             use_safetensors=True,
@@ -159,7 +159,7 @@ class PhotoMakerAdapterLoader_local_Node_Zho:
 
 
 class ImagePreprocessingNode_Zho:
-    def __init__(self, ref_image=None, ref_images_path=None, mode="single"):
+    def __init__(self, ref_image=None, ref_images_path=None, mode="direct_Input"):
         self.ref_image = ref_image
         self.ref_images_path = ref_images_path
         self.mode = mode
@@ -169,10 +169,10 @@ class ImagePreprocessingNode_Zho:
         return {
             "required": {
                 "ref_images_path": ("STRING", {"default": "path/to/images"}),  # 图像文件夹路径
-                "mode": (["single", "multiple"], {"default": "multiple"})  # 选择模式
+                "mode": (["direct_Input", "path_Input"], {"default": "path_Input"})  # 选择模式
             },
             "optional": {
-                "ref_image": ("IMAGE",)  # 单张图像（可选）
+                "ref_image": ("IMAGE",)  # 直接输入图像（可选）
             }
         }
 
@@ -180,19 +180,22 @@ class ImagePreprocessingNode_Zho:
     FUNCTION = "preprocess_image"
     CATEGORY = "📷PhotoMaker"
   
-    def preprocess_image(self, ref_image=None, ref_images_path=None, mode="single"):
+    def preprocess_image(self, ref_image=None, ref_images_path=None, mode="direct_Input"):
         # 使用传入的参数更新类属性
         ref_image = ref_image if ref_image is not None else ref_image
         ref_images_path = ref_images_path if ref_images_path is not None else ref_images_path
         mode = mode
 
-        if mode == "single" and ref_image is not None:
-            # 单张图像处理
-            image_np = (255. * ref_image.cpu().numpy().squeeze()).clip(0, 255).astype(np.uint8)
-            pil_image = Image.fromarray(image_np)
-            return [pil_image]
-        elif mode == "multiple":
-            # 多张图像路径处理
+        if mode == "direct_Input" and ref_image is not None:
+            # 直接图像处理
+            pil_images = []
+            for image in ref_image:
+                image_np = (255. * image.cpu().numpy().squeeze()).clip(0, 255).astype(np.uint8)
+                pil_image = Image.fromarray(image_np)
+                pil_images.append(pil_image)
+            return pil_images
+        elif mode == "path_Input":
+            # 路径输入图像
             image_basename_list = os.listdir(ref_images_path)
             image_path_list = [
                 os.path.join(ref_images_path, basename) 
@@ -201,7 +204,7 @@ class ImagePreprocessingNode_Zho:
             ]
             return [load_image(image_path) for image_path in image_path_list]
         else:
-            raise ValueError("Invalid mode. Choose 'single' or 'multiple'.")
+            raise ValueError("Invalid mode. Choose 'direct_Input' or 'path_Input'.")
 
 
 class CompositeImageGenerationNode_Zho:
@@ -217,10 +220,11 @@ class CompositeImageGenerationNode_Zho:
                 "style_name": (STYLE_NAMES, {"default": DEFAULT_STYLE_NAME}),
                 "style_strength_ratio": ("INT", {"default": 20, "min": 1, "max": 50, "display": "slider"}),
                 "steps": ("INT", {"default": 50, "min": 1, "max": 100, "step": 1, "display": "slider"}),
+                "batch_size": ("INT", {"default": 1, "min": 1, "max": 4, "step": 1}),
                 "guidance_scale": ("FLOAT", {"default": 5, "min": 0, "max": 10}),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
-                "width": ("INT", {"default": 1024, "min": 512, "max": 2048, "step": 32}),
-                "height": ("INT", {"default": 1024, "min": 512, "max": 2048, "step": 32}), 
+                "width": ("INT", {"default": 1024, "min": 512, "max": 2048, "step": 32, "display": "slider"}),
+                "height": ("INT", {"default": 1024, "min": 512, "max": 2048, "step": 32, "display": "slider"}), 
                 "pipe": ("MODEL",),
                 "pil_image": ("IMAGE",)
             }
@@ -230,7 +234,7 @@ class CompositeImageGenerationNode_Zho:
     FUNCTION = "generate_image"
     CATEGORY = "📷PhotoMaker"
 
-    def generate_image(self, style_name, style_strength_ratio, steps, seed, prompt, negative_prompt, guidance_scale, pil_image, pipe, width, height):
+    def generate_image(self, style_name, style_strength_ratio, steps, batch_size, seed, prompt, negative_prompt, guidance_scale, pil_image, pipe, width, height):
         # Code for the remaining process including style template application, merge step calculation, etc.
         prompt, negative_prompt = apply_style(style_name, prompt, negative_prompt)
         
@@ -244,7 +248,7 @@ class CompositeImageGenerationNode_Zho:
             prompt=prompt,
             input_id_images=[pil_image],
             negative_prompt=negative_prompt,
-            num_images_per_prompt=1,
+            num_images_per_prompt=batch_size,
             num_inference_steps=steps,
             start_merge_step=start_merge_step,
             generator=generator,
