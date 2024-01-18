@@ -200,7 +200,7 @@ class PhotoMakerAdapterLoader_local_lora_Node_Zho:
 
         # 生成动态适配器名称
         timestamp = int(time.time())
-        dynamic_lora_name = f"{lora_name}_{timestamp}"
+        dynamic_lora_name = f"{lora_name_processed}_{timestamp}"
         filename_processed = f"{filename.replace('.bin', '')}_{timestamp}"
 
         # 加载 LoRA 权重
