@@ -255,7 +255,7 @@ class CompositeImageGenerationNode_Zho:
             guidance_scale=guidance_scale, 
             width=width,
             height=height,
-            return_dict=False
+            return_dict=True
         )
 
         # 检查输出类型并相应处理
