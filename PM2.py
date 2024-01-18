@@ -219,8 +219,8 @@ class CompositeImageGenerationNode_Zho:
                 "steps": ("INT", {"default": 50, "min": 1, "max": 100, "step": 1, "display": "slider"}),
                 "guidance_scale": ("FLOAT", {"default": 5, "min": 0, "max": 10}),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
-                "pil_image": ("IMAGE",),
-                "pipe": ("MODEL",)
+                "pipe": ("MODEL",),
+                "pil_image": ("IMAGE",)
             }
         }
 
