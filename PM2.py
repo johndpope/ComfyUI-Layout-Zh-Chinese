@@ -1,4 +1,5 @@
 import torch
+import time
 import os
 import folder_paths
 from diffusers.utils import load_image
