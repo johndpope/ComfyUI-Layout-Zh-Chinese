@@ -182,7 +182,7 @@ class PhotoMakerAdapterLoader_local_lora_Node_Zho:
     def load_photomaker_adapter(self, pm_model_path, filename, lora_name, pm_weight, lora_weight, pipe):
         # 拼接完整的模型路径
         photomaker_path = os.path.join(pm_model_path, filename)
-            
+        
         lora_path = folder_paths.get_full_path("loras", lora_name)
 
         # 加载PhotoMaker检查点
@@ -196,11 +196,12 @@ class PhotoMakerAdapterLoader_local_lora_Node_Zho:
         pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
             
         # 加载 LoRA 
-        pipe.load_lora_weights(os.path.dirname(lora_path), weight_name=os.path.basename(lora_path), adapter_name=lora_name)
+        lora_name_processed = lora_name.replace(".safetensors", "")
+        pipe.load_lora_weights(os.path.dirname(lora_path), weight_name=os.path.basename(lora_path), adapter_name=lora_name_processed)
             
         # 设置适配器和权重
         adapter_weights = [pm_weight, lora_weight]
-        pipe.set_adapters(["photomaker", lora_name], adapter_weights=adapter_weights)
+        pipe.set_adapters(["photomaker", lora_name_processed], adapter_weights=adapter_weights)
             
         # 融合 LoRA
         pipe.fuse_lora()
