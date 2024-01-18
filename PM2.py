@@ -200,8 +200,9 @@ class PhotoMakerAdapterLoader_local_lora_Node_Zho:
         pipe.load_lora_weights(os.path.dirname(lora_path), weight_name=os.path.basename(lora_path), adapter_name=lora_name_processed)
             
         # 设置适配器和权重
+        filename_processed = filename.replace(".bin", "")
         adapter_weights = [pm_weight, lora_weight]
-        pipe.set_adapters(["photomaker", lora_name_processed], adapter_weights=adapter_weights)
+        pipe.set_adapters([filename_processed, lora_name_processed], adapter_weights=adapter_weights)
             
         # 融合 LoRA
         pipe.fuse_lora()
