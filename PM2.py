@@ -181,7 +181,14 @@ class CompositeImageGenerationNode_Zho:
             return_dict=False
         )
             
-        vaedecode_input = {"samples": output}
+        # output 现在是一个 StableDiffusionXLPipelineOutput 对象
+        # 提取潜在向量
+        latents = output.images
+
+        # 准备传递给 VAEDecode 的数据
+        vaedecode_input = {"samples": latents}
+
+        # 这个 vaedecode_input 字典现在可以直接被 VAEDecode 节点使用
         return vaedecode_input
 
 
