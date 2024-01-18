@@ -204,8 +204,7 @@ class CompositeImageGenerationNode_Zho:
             num_inference_steps=steps,
             start_merge_step=start_merge_step,
             generator=generator,
-            guidance_scale=guidance_scale,
-            output_type="latent", 
+            guidance_scale=guidance_scale, 
             return_dict=False
         )
 
