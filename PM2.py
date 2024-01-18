@@ -77,7 +77,7 @@ class BaseModelLoader_local_Node_Zho:
         if not os.path.exists(ckpt_path):
             raise FileNotFoundError(f"Checkpoint file {ckpt_path} not found.")
                 
-        pipe = PhotoMakerStableDiffusionXLPipeline.from_direct_Input_file(
+        pipe = PhotoMakerStableDiffusionXLPipeline.from_single_file(
             pretrained_model_link_or_path=ckpt_path,
             torch_dtype=torch.bfloat16,
             use_safetensors=True,
