@@ -185,38 +185,30 @@ class PhotoMakerAdapterLoader_local_lora_Node_Zho:
         lora_path = folder_paths.get_full_path("loras", lora_name)
 
         # 处理适配器名称
-        filename_processed = filename.replace(".bin", "")
         lora_name_processed = lora_name.replace(".safetensors", "")
 
-        # 检查并加载PhotoMaker检查点
-        if filename_processed not in pipe.get_adapter_names():
-            pipe.load_photomaker_adapter(
-                os.path.dirname(photomaker_path),
-                subfolder="",
-                weight_name=os.path.basename(photomaker_path),
-                trigger_word="img"
-            )
-            
-        pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
-            
-        # 检查并加载 LoRA 权重
-        if lora_name_processed not in pipe.get_adapter_names():
-            pipe.load_lora_weights(os.path.dirname(lora_path), weight_name=os.path.basename(lora_path), adapter_name=lora_name_processed)
-
-            
-        # 检查并设置适配器和权重
-        current_adapters = pipe.get_adapter_names()
-        adapters_to_set = []
-        adapter_weights = []
-        if filename_processed not in current_adapters:
-            adapters_to_set.append(filename_processed)
-            adapter_weights.append(pm_weight)
-        if lora_name_processed not in current_adapters:
-            adapters_to_set.append(lora_name_processed)
-            adapter_weights.append(lora_weight)
+        # 加载PhotoMaker检查点
+        pipe.load_photomaker_adapter(
+            os.path.dirname(photomaker_path),
+            subfolder="",
+            weight_name=os.path.basename(photomaker_path),
+            trigger_word="img"
+        )
     
-        if adapters_to_set:
-            pipe.set_adapters(adapters_to_set, adapter_weights=adapter_weights)
+        pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
+
+        # 生成动态适配器名称
+        timestamp = int(time.time())
+        dynamic_lora_name = f"{lora_name}_{timestamp}"
+        filename_processed = f"{filename.replace('.bin', '')}_{timestamp}"
+
+        # 加载 LoRA 权重
+        lora_name_processed = lora_name.replace(".safetensors", "")
+        pipe.load_lora_weights(os.path.dirname(lora_path), weight_name=os.path.basename(lora_path), adapter_name=dynamic_lora_name)
+    
+        # 设置适配器和权重
+        adapter_weights = [pm_weight, lora_weight]
+        pipe.set_adapters([filename_processed, dynamic_lora_name], adapter_weights=adapter_weights)
             
         # 融合 LoRA
         pipe.fuse_lora()
