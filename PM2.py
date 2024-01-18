@@ -181,7 +181,8 @@ class CompositeImageGenerationNode_Zho:
             return_dict=False
         )
             
-        return output
+        vaedecode_input = {"samples": output}
+        return vaedecode_input
 
 
 
