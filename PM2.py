@@ -170,7 +170,6 @@ class PhotoMakerAdapterLoader_local_lora_Node_Zho:
                 "pm_model_path": ("STRING", {"default": "enter photomaker model path"}),
                 "filename": ("STRING", {"default": "photomaker-v1.bin"}),
                 "lora_name": (folder_paths.get_filename_list("loras"), ),
-                "lora_weight": ("FLOAT", {"default": 0.5, "min": 0, "max": 1, "step": 0.1, "display": "slider"}),
                 "pipe": ("MODEL",)
             }
         }
@@ -179,7 +178,7 @@ class PhotoMakerAdapterLoader_local_lora_Node_Zho:
     FUNCTION = "load_photomaker_adapter"
     CATEGORY = "📷PhotoMaker"
 
-    def load_photomaker_adapter(self, pm_model_path, filename, lora_name, lora_weight, pipe):
+    def load_photomaker_adapter(self, pm_model_path, filename, lora_name, pipe):
         # 拼接完整的模型路径
         photomaker_path = os.path.join(pm_model_path, filename)
         lora_path = folder_paths.get_full_path("loras", lora_name)
@@ -200,7 +199,7 @@ class PhotoMakerAdapterLoader_local_lora_Node_Zho:
     
         # 设置适配器和权重
         filename_processed = filename.replace(".bin", "")
-        adapter_weights = [1.0, lora_weight]
+        adapter_weights = [1.0, 0.5]
         pipe.set_adapters([filename_processed, lora_name_processed], adapter_weights=adapter_weights)
             
         # 融合 LoRA
