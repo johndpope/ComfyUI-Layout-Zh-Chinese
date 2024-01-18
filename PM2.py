@@ -158,6 +158,56 @@ class PhotoMakerAdapterLoader_local_Node_Zho:
         return [pipe]
 
 
+class PhotoMakerAdapterLoader_local_lora_Node_Zho:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "pm_model_path": ("STRING", {"default": "enter photomaker model path"}),
+                "filename": ("STRING", {"default": "photomaker-v1.bin"}),
+                "pm_weight": ("FLOAT", {"default": 1.0, "min": 0, "max": 1, "step": 0.1, "display": "slider"}),
+                "lora_name": (folder_paths.get_filename_list("loras"), ),
+                "lora_weight": ("FLOAT", {"default": 0.5, "min": 0, "max": 1, "step": 0.1, "display": "slider"}),
+                "pipe": ("MODEL",)
+            }
+        }
+
+    RETURN_TYPES = ("MODEL",)
+    FUNCTION = "load_photomaker_adapter"
+    CATEGORY = "📷PhotoMaker"
+
+    def load_photomaker_adapter(self, pm_model_path, filename, lora_name, pm_weight, lora_weight, pipe):
+        # 拼接完整的模型路径
+        photomaker_path = os.path.join(pm_model_path, filename)
+            
+        lora_path = folder_paths.get_full_path("loras", lora_name)
+
+        # 加载PhotoMaker检查点
+        pipe.load_photomaker_adapter(
+            os.path.dirname(photomaker_path),
+            subfolder="",
+            weight_name=os.path.basename(photomaker_path),
+            trigger_word="img"
+        )
+            
+        pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
+            
+        # 加载 LoRA 
+        pipe.load_lora_weights(os.path.dirname(lora_path), weight_name=os.path.basename(lora_path), adapter_name=lora_name)
+            
+        # 设置适配器和权重
+        adapter_weights = [pm_weight, lora_weight]
+        pipe.set_adapters(["photomaker", lora_name], adapter_weights=adapter_weights)
+            
+        # 融合 LoRA
+        pipe.fuse_lora()
+            
+        return [pipe]
+
+
 class ImagePreprocessingNode_Zho:
     def __init__(self, ref_image=None, ref_images_path=None, mode="direct_Input"):
         self.ref_image = ref_image
@@ -220,7 +270,6 @@ class CompositeImageGenerationNode_Zho:
                 "style_name": (STYLE_NAMES, {"default": DEFAULT_STYLE_NAME}),
                 "style_strength_ratio": ("INT", {"default": 20, "min": 1, "max": 50, "display": "slider"}),
                 "steps": ("INT", {"default": 50, "min": 1, "max": 100, "step": 1, "display": "slider"}),
-                "batch_size": ("INT", {"default": 1, "min": 1, "max": 4, "step": 1}),
                 "guidance_scale": ("FLOAT", {"default": 5, "min": 0, "max": 10}),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                 "width": ("INT", {"default": 1024, "min": 512, "max": 2048, "step": 32, "display": "slider"}),
@@ -234,7 +283,7 @@ class CompositeImageGenerationNode_Zho:
     FUNCTION = "generate_image"
     CATEGORY = "📷PhotoMaker"
 
-    def generate_image(self, style_name, style_strength_ratio, steps, batch_size, seed, prompt, negative_prompt, guidance_scale, pil_image, pipe, width, height):
+    def generate_image(self, style_name, style_strength_ratio, steps, seed, prompt, negative_prompt, guidance_scale, pil_image, pipe, width, height):
         # Code for the remaining process including style template application, merge step calculation, etc.
         prompt, negative_prompt = apply_style(style_name, prompt, negative_prompt)
         
@@ -248,14 +297,14 @@ class CompositeImageGenerationNode_Zho:
             prompt=prompt,
             input_id_images=[pil_image],
             negative_prompt=negative_prompt,
-            num_images_per_prompt=batch_size,
+            num_images_per_prompt=1,
             num_inference_steps=steps,
             start_merge_step=start_merge_step,
             generator=generator,
             guidance_scale=guidance_scale, 
             width=width,
             height=height,
-            return_dict=True
+            return_dict=False
         )
 
         # 检查输出类型并相应处理
@@ -288,6 +337,7 @@ NODE_CLASS_MAPPINGS = {
     "BaseModel_Loader_local": BaseModelLoader_local_Node_Zho,
     "PhotoMakerAdapter_Loader_fromhub": PhotoMakerAdapterLoader_fromhub_Node_Zho,
     "PhotoMakerAdapter_Loader_local": PhotoMakerAdapterLoader_local_Node_Zho,
+    "PhotoMakerAdapter_Loader_local_lora": PhotoMakerAdapterLoader_local_lora_Node_Zho,
     "Ref_Image_Preprocessing": ImagePreprocessingNode_Zho,
     "PhotoMaker_Generation": CompositeImageGenerationNode_Zho
 }
@@ -297,6 +347,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "BaseModel_Loader_local": "📷Base Model Loader locally",
     "PhotoMakerAdapter_Loader_fromhub": "📷PhotoMaker Adapter Loader from hub🤗",
     "PhotoMakerAdapter_Loader_local": "📷PhotoMaker Adapter Loader locally",
+    "PhotoMakerAdapter_Loader_local_lora": "📷PhotoMaker Adapter Loader with lora",
     "Ref_Image_Preprocessing": "📷Ref Image Preprocessing",
     "PhotoMaker_Generation": "📷PhotoMaker Generation"
 }
