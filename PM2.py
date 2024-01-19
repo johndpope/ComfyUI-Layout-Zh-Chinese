@@ -205,7 +205,7 @@ class ImagePreprocessingNode_Zho:
         return {
             "required": {
                 "ref_images_path": ("STRING", {"default": "path/to/images"}),  # 图像文件夹路径
-                "mode": (["direct_Input", "path_Input"], {"default": "path_Input"})  # 选择模式
+                "mode": (["direct_Input", "path_Input"], {"default": "direct_Input"})  # 选择模式
             },
             "optional": {
                 "ref_image": ("IMAGE",)  # 直接输入图像（可选）
@@ -362,9 +362,9 @@ class NEWCompositeImageGenerationNode_Zho:
                 "positive": ("STRING", {"multiline": True, "forceInput": True}),
                 "negative": ("STRING", {"multiline": True, "forceInput": True}),
                 "style_strength_ratio": ("INT", {"forceInput": True}),
+                "batch_size": ("INT", {"default": 1, "min": 1, "max": 4, "display": "slider"}),
                 "steps": ("INT", {"default": 50, "min": 1, "max": 100, "step": 1, "display": "slider"}),
                 "guidance_scale": ("FLOAT", {"default": 5, "min": 0, "max": 10, "display": "slider"}),
-                "batch_size": ("INT", {"default": 1, "min": 1, "max": 4, "display": "slider"}),
                 "width": ("INT", {"default": 1024, "min": 512, "max": 2048, "step": 32, "display": "slider"}),
                 "height": ("INT", {"default": 1024, "min": 512, "max": 2048, "step": 32, "display": "slider"}), 
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
