@@ -324,6 +324,190 @@ class CompositeImageGenerationNode_Zho:
         return (output_image,)
 
 
+#拆分生成块
+class Prompt_Style_Zho:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "prompt": ("STRING", {"default": "sci-fi, closeup portrait photo of a man img wearing the sunglasses in Iron man suit, face, slim body, high quality, film grain", "multiline": True}),
+                "negative_prompt": ("STRING", {"default": "asymmetry, worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth", "multiline": True}),
+                "style_name": (STYLE_NAMES, {"default": DEFAULT_STYLE_NAME}),
+                "style_strength_ratio": ("INT", {"default": 20, "min": 1, "max": 50, "display": "slider"})
+            }
+        }
+
+    RETURN_TYPES = ('STRING','STRING',)
+    RETURN_NAMES = ('positive_prompt','negative_prompt',)
+    FUNCTION = "prompt_style"
+    CATEGORY = "📷PhotoMaker"
+
+    def prompt_style(self, style_name, style_strength_ratio, prompt, negative_prompt):
+        prompt, negative_prompt = apply_style(style_name, prompt, negative_prompt)
+        
+        return prompt, negative_prompt
+
+
+class NEWCompositeImageGenerationNode_Zho:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "positive": ("STRING", {"multiline": True, "forceInput": True}),
+                "negative": ("STRING", {"multiline": True, "forceInput": True}),
+                "steps": ("INT", {"default": 50, "min": 1, "max": 100, "step": 1, "display": "slider"}),
+                "guidance_scale": ("FLOAT", {"default": 5, "min": 0, "max": 10}),
+                "batch_size": ("INT", {"default": 1, "min": 1, "max": 4}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
+                "width": ("INT", {"default": 1024, "min": 512, "max": 2048, "step": 32, "display": "slider"}),
+                "height": ("INT", {"default": 1024, "min": 512, "max": 2048, "step": 32, "display": "slider"}), 
+                "pipe": ("MODEL",),
+                "pil_image": ("IMAGE",)
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "generate_image"
+    CATEGORY = "📷PhotoMaker"
+
+    def generate_image(self, steps, seed, positive, negative, guidance_scale, batch_size, pil_image, pipe, width, height):
+        # Code for the remaining process including style template application, merge step calculation, etc.
+        
+        start_merge_step = int(float(style_strength_ratio) / 100 * steps)
+        if start_merge_step > 30:
+            start_merge_step = 30
+
+        generator = torch.Generator(device=device).manual_seed(seed)
+
+        output = pipe(
+            prompt=positive,
+            input_id_images=[pil_image],
+            negative_prompt=negative,
+            num_images_per_prompt=batch_size,
+            num_inference_steps=steps,
+            start_merge_step=start_merge_step,
+            generator=generator,
+            guidance_scale=guidance_scale, 
+            width=width,
+            height=height,
+            return_dict=False
+        )
+
+        # 检查输出类型并相应处理
+        if isinstance(output, tuple):
+            # 当返回的是元组时，第一个元素是图像列表
+            images_list = output[0]
+        else:
+            # 如果返回的是 StableDiffusionXLPipelineOutput，需要从中提取图像
+            images_list = output.images
+
+        # 转换图像为 torch.Tensor，并调整维度顺序为 NHWC
+        images_tensors = []
+        for img in images_list:
+            # 将 PIL.Image 转换为 numpy.ndarray
+            img_array = np.array(img)
+            # 转换 numpy.ndarray 为 torch.Tensor
+            img_tensor = torch.from_numpy(img_array).float() / 255.
+            # 转换图像格式为 CHW (如果需要)
+            if img_tensor.ndim == 3 and img_tensor.shape[-1] == 3:
+                img_tensor = img_tensor.permute(2, 0, 1)
+            # 添加批次维度并转换为 NHWC
+            img_tensor = img_tensor.unsqueeze(0).permute(0, 2, 3, 1)
+            images_tensors.append(img_tensor)
+
+        if len(images_tensors) > 1:
+            output_image = torch.cat(images_tensors, dim=0)
+        else:
+            output_image = images_tensors[0]
+
+        return (output_image,)
+
+'''
+class EMBGenerationNode_Zho:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "positive_embeds": ("EMBEDS", ),
+                "negative_embeds": ("EMBEDS", ),
+                "steps": ("INT", {"default": 50, "min": 1, "max": 100, "step": 1, "display": "slider"}),
+                "guidance_scale": ("FLOAT", {"default": 5, "min": 0, "max": 10}),
+                "batch_size": ("INT", {"default": 1, "min": 1, "max": 4}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
+                "width": ("INT", {"default": 1024, "min": 512, "max": 2048, "step": 32, "display": "slider"}),
+                "height": ("INT", {"default": 1024, "min": 512, "max": 2048, "step": 32, "display": "slider"}), 
+                "pipe": ("MODEL",),
+                "pil_image": ("IMAGE",)
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "generate_image"
+    CATEGORY = "📷PhotoMaker"
+
+    def generate_image(self, steps, seed, positive_embed, negative_embeds, guidance_scale, batch_size, pil_image, pipe, width, height):
+        # Code for the remaining process including style template application, merge step calculation, etc.
+        
+        start_merge_step = int(float(style_strength_ratio) / 100 * steps)
+        if start_merge_step > 30:
+            start_merge_step = 30
+
+        generator = torch.Generator(device=device).manual_seed(seed)
+
+        output = pipe(
+            prompt_embeds=positive_embed,
+            input_id_images=[pil_image],
+            negative_prompt_embeds=negative_embeds,
+            num_images_per_prompt=batch_size,
+            num_inference_steps=steps,
+            start_merge_step=start_merge_step,
+            generator=generator,
+            guidance_scale=guidance_scale, 
+            width=width,
+            height=height,
+            return_dict=False
+        )
+
+        # 检查输出类型并相应处理
+        if isinstance(output, tuple):
+            # 当返回的是元组时，第一个元素是图像列表
+            images_list = output[0]
+        else:
+            # 如果返回的是 StableDiffusionXLPipelineOutput，需要从中提取图像
+            images_list = output.images
+
+        # 转换图像为 torch.Tensor，并调整维度顺序为 NHWC
+        images_tensors = []
+        for img in images_list:
+            # 将 PIL.Image 转换为 numpy.ndarray
+            img_array = np.array(img)
+            # 转换 numpy.ndarray 为 torch.Tensor
+            img_tensor = torch.from_numpy(img_array).float() / 255.
+            # 转换图像格式为 CHW (如果需要)
+            if img_tensor.ndim == 3 and img_tensor.shape[-1] == 3:
+                img_tensor = img_tensor.permute(2, 0, 1)
+            # 添加批次维度并转换为 NHWC
+            img_tensor = img_tensor.unsqueeze(0).permute(0, 2, 3, 1)
+            images_tensors.append(img_tensor)
+
+        if len(images_tensors) > 1:
+            output_image = torch.cat(images_tensors, dim=0)
+        else:
+            output_image = images_tensors[0]
+
+        return (output_image,)
+'''
+
+
 NODE_CLASS_MAPPINGS = {
     "BaseModel_Loader_fromhub": BaseModelLoader_fromhub_Node_Zho,
     "BaseModel_Loader_local": BaseModelLoader_local_Node_Zho,
@@ -331,6 +515,8 @@ NODE_CLASS_MAPPINGS = {
     "PhotoMakerAdapter_Loader_local": PhotoMakerAdapterLoader_local_Node_Zho,
     "LoRALoader": LoRALoader_Node_Zho,
     "Ref_Image_Preprocessing": ImagePreprocessingNode_Zho,
+    "Prompt_Styler": Prompt_Style_Zho,
+    "NEW_PhotoMaker_Generation": NEWCompositeImageGenerationNode_Zho,
     "PhotoMaker_Generation": CompositeImageGenerationNode_Zho
 }
 
@@ -341,5 +527,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "PhotoMakerAdapter_Loader_local": "📷PhotoMaker Adapter Loader locally",
     "LoRALoader": "📷LoRALoader",
     "Ref_Image_Preprocessing": "📷Ref Image Preprocessing",
+    "Prompt_Styler": "📷Prompt_Styler",
+    "NEW_PhotoMaker_Generation": "📷NEW PhotoMaker Generation",
     "PhotoMaker_Generation": "📷PhotoMaker Generation"
 }
