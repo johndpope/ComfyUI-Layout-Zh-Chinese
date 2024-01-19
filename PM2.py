@@ -176,7 +176,7 @@ class LoRALoader_Node_Zho:
     RETURN_TYPES = ("MODEL",)
     FUNCTION = "load_lora"
     CATEGORY = "📷PhotoMaker"
-        
+'''        
     def load_lora(self, lora_name, lora_weight, pipe):
         lora_path = folder_paths.get_full_path("loras", lora_name)
         lora_name_processed = os.path.basename(lora_path).replace(".safetensors", "")
@@ -195,6 +195,29 @@ class LoRALoader_Node_Zho:
         # 解融合之前的 LoRA（如果之前已经融合）
         pipe.unfuse_lora()
         
+        # 融合 LoRA
+        pipe.fuse_lora()
+
+        return [pipe]
+'''
+    def load_lora(self, lora_name, lora_weight, pipe):
+        lora_path = folder_paths.get_full_path("loras", lora_name)
+        lora_name_processed = os.path.basename(lora_path).replace(".safetensors", "")
+
+        # 解融合之前的 LoRA
+        pipe.unfuse_lora()
+
+        # 卸载之前加载的 LoRA 权重
+        pipe.unload_lora_weights()
+
+        # 重新加载新的 LoRA 权重
+        unique_adapter_name = f"photomaker_{int(time.time())}"
+        pipe.load_lora_weights(os.path.dirname(lora_path), weight_name=os.path.basename(lora_path), adapter_name=unique_adapter_name)
+
+        # 设置适配器和权重
+        adapter_weights = [1.0, lora_weight]
+        pipe.set_adapters(["photomaker", unique_adapter_name], adapter_weights=adapter_weights)
+
         # 融合 LoRA
         pipe.fuse_lora()
 
