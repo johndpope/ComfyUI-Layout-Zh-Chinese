@@ -121,7 +121,7 @@ class PhotoMakerAdapterLoader_fromhub_Node_Zho:
             trigger_word="img"
         )
         pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
-        pipe.fuse_lora()
+
         return [pipe]
 
 
@@ -155,11 +155,11 @@ class PhotoMakerAdapterLoader_local_Node_Zho:
             trigger_word="img"
         )
         pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
-        pipe.fuse_lora()
+
         return [pipe]
 
 
-class PhotoMakerAdapterLoader_local_lora_Node_Zho:
+class LoRALoader_Node_Zho:
     def __init__(self):
         pass
 
@@ -167,45 +167,25 @@ class PhotoMakerAdapterLoader_local_lora_Node_Zho:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "pm_model_path": ("STRING", {"default": "enter photomaker model path"}),
-                "filename": ("STRING", {"default": "photomaker-v1.bin"}),
                 "lora_name": (folder_paths.get_filename_list("loras"), ),
                 "pipe": ("MODEL",)
             }
         }
 
-    RETURN_TYPES = ("MODEL",)
-    FUNCTION = "load_photomaker_adapter"
-    CATEGORY = "📷PhotoMaker"
-
-    def load_photomaker_adapter(self, pm_model_path, filename, lora_name, pipe):
-        # 拼接完整的模型路径
-        photomaker_path = os.path.join(pm_model_path, filename)
+    def load_lora(self, lora_name, pipe):
         lora_path = folder_paths.get_full_path("loras", lora_name)
-
-        # 加载PhotoMaker检查点
-        pipe.load_photomaker_adapter(
-            os.path.dirname(photomaker_path),
-            subfolder="",
-            weight_name=os.path.basename(photomaker_path),
-            trigger_word="img"
-        )
-    
-        pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
-
         # 加载 LoRA 权重
-        lora_name_processed = lora_name.replace(".safetensors", "")
-        unique_adapter_name = f"photomaker_{int(time.time())}"
-        pipe.load_lora_weights(os.path.dirname(lora_path), weight_name=os.path.basename(lora_path), adapter_name=unique_adapter_name)
-    
+        lora_name_processed = os.path.basename(lora_path).replace(".safetensors", "")
+        #unique_adapter_name = f"photomaker_{int(time.time())}"
+        pipe.load_lora_weights(os.path.dirname(lora_path), weight_name=os.path.basename(lora_path), adapter_name=lora_name_processed)
+
         # 设置适配器和权重
-        filename_processed = filename.replace(".bin", "")
-        adapter_weights = [1.0, 0.5]
-        pipe.set_adapters([filename_processed, unique_adapter_name], adapter_weights=adapter_weights)
-            
+        #adapter_weights = [1.0, 0.5]
+        pipe.set_adapters(["photomaker", lora_name_processed], adapter_weights=[1.0, 0.5])
+
         # 融合 LoRA
         pipe.fuse_lora()
-            
+
         return [pipe]
 
 
@@ -344,7 +324,7 @@ NODE_CLASS_MAPPINGS = {
     "BaseModel_Loader_local": BaseModelLoader_local_Node_Zho,
     "PhotoMakerAdapter_Loader_fromhub": PhotoMakerAdapterLoader_fromhub_Node_Zho,
     "PhotoMakerAdapter_Loader_local": PhotoMakerAdapterLoader_local_Node_Zho,
-    "PhotoMakerAdapter_Loader_local_lora": PhotoMakerAdapterLoader_local_lora_Node_Zho,
+    "LoRALoader": LoRALoader_Node_Zho,
     "Ref_Image_Preprocessing": ImagePreprocessingNode_Zho,
     "PhotoMaker_Generation": CompositeImageGenerationNode_Zho
 }
@@ -354,7 +334,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "BaseModel_Loader_local": "📷Base Model Loader locally",
     "PhotoMakerAdapter_Loader_fromhub": "📷PhotoMaker Adapter Loader from hub🤗",
     "PhotoMakerAdapter_Loader_local": "📷PhotoMaker Adapter Loader locally",
-    "PhotoMakerAdapter_Loader_local_lora": "📷PhotoMaker Adapter Loader with lora",
+    "LoRALoader": "📷LoRALoader",
     "Ref_Image_Preprocessing": "📷Ref Image Preprocessing",
     "PhotoMaker_Generation": "📷PhotoMaker Generation"
 }
