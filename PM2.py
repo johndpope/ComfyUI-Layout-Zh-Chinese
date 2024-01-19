@@ -171,7 +171,11 @@ class LoRALoader_Node_Zho:
                 "pipe": ("MODEL",)
             }
         }
-
+            
+    RETURN_TYPES = ("MODEL",)
+    FUNCTION = "load_lora"
+    CATEGORY = "📷PhotoMaker"
+        
     def load_lora(self, lora_name, pipe):
         lora_path = folder_paths.get_full_path("loras", lora_name)
         # 加载 LoRA 权重
