@@ -340,15 +340,15 @@ class Prompt_Style_Zho:
             }
         }
 
-    RETURN_TYPES = ('STRING','STRING',)
-    RETURN_NAMES = ('positive_prompt','negative_prompt',)
+    RETURN_TYPES = ('STRING','STRING','INT',)
+    RETURN_NAMES = ('positive_prompt','negative_prompt','style_strength_ratio',)
     FUNCTION = "prompt_style"
     CATEGORY = "📷PhotoMaker"
 
     def prompt_style(self, style_name, style_strength_ratio, prompt, negative_prompt):
         prompt, negative_prompt = apply_style(style_name, prompt, negative_prompt)
         
-        return prompt, negative_prompt
+        return prompt, negative_prompt, style_strength_ratio
 
 
 class NEWCompositeImageGenerationNode_Zho:
@@ -361,12 +361,13 @@ class NEWCompositeImageGenerationNode_Zho:
             "required": {
                 "positive": ("STRING", {"multiline": True, "forceInput": True}),
                 "negative": ("STRING", {"multiline": True, "forceInput": True}),
+                "style_strength_ratio": ("INT", {"forceInput": True}),
                 "steps": ("INT", {"default": 50, "min": 1, "max": 100, "step": 1, "display": "slider"}),
-                "guidance_scale": ("FLOAT", {"default": 5, "min": 0, "max": 10}),
-                "batch_size": ("INT", {"default": 1, "min": 1, "max": 4}),
-                "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
+                "guidance_scale": ("FLOAT", {"default": 5, "min": 0, "max": 10, "display": "slider"}),
+                "batch_size": ("INT", {"default": 1, "min": 1, "max": 4, "display": "slider"}),
                 "width": ("INT", {"default": 1024, "min": 512, "max": 2048, "step": 32, "display": "slider"}),
                 "height": ("INT", {"default": 1024, "min": 512, "max": 2048, "step": 32, "display": "slider"}), 
+                "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                 "pipe": ("MODEL",),
                 "pil_image": ("IMAGE",)
             }
@@ -376,7 +377,7 @@ class NEWCompositeImageGenerationNode_Zho:
     FUNCTION = "generate_image"
     CATEGORY = "📷PhotoMaker"
 
-    def generate_image(self, steps, seed, positive, negative, guidance_scale, batch_size, pil_image, pipe, width, height):
+    def generate_image(self, steps, seed, positive, negative, style_strength_ratio, guidance_scale, batch_size, pil_image, pipe, width, height):
         # Code for the remaining process including style template application, merge step calculation, etc.
         
         start_merge_step = int(float(style_strength_ratio) / 100 * steps)
