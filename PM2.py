@@ -341,20 +341,19 @@ class Prompt_Style_Zho:
             "required": {
                 "prompt": ("STRING", {"default": "sci-fi, closeup portrait photo of a man img wearing the sunglasses in Iron man suit, face, slim body, high quality, film grain", "multiline": True}),
                 "negative_prompt": ("STRING", {"default": "asymmetry, worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth", "multiline": True}),
-                "style_name": (STYLE_NAMES, {"default": DEFAULT_STYLE_NAME}),
-                "style_strength_ratio": ("INT", {"default": 20, "min": 1, "max": 50, "display": "slider"})
+                "style_name": (STYLE_NAMES, {"default": DEFAULT_STYLE_NAME})
             }
         }
 
-    RETURN_TYPES = ('STRING','STRING','INT',)
-    RETURN_NAMES = ('positive_prompt','negative_prompt','style_strength_ratio',)
+    RETURN_TYPES = ('STRING','STRING',)
+    RETURN_NAMES = ('positive_prompt','negative_prompt',)
     FUNCTION = "prompt_style"
     CATEGORY = "📷PhotoMaker"
 
-    def prompt_style(self, style_name, style_strength_ratio, prompt, negative_prompt):
+    def prompt_style(self, style_name, prompt, negative_prompt):
         prompt, negative_prompt = apply_style(style_name, prompt, negative_prompt)
         
-        return prompt, negative_prompt, style_strength_ratio
+        return prompt, negative_prompt
 
 
 class NEWCompositeImageGenerationNode_Zho:
@@ -367,8 +366,8 @@ class NEWCompositeImageGenerationNode_Zho:
             "required": {
                 "positive": ("STRING", {"multiline": True, "forceInput": True}),
                 "negative": ("STRING", {"multiline": True, "forceInput": True}),
-                "style_strength_ratio": ("INT", {"forceInput": True}),
                 "batch_size": ("INT", {"default": 1, "min": 1, "max": 4, "display": "slider"}),
+                "style_strength_ratio": ("INT", {"default": 20, "min": 1, "max": 50, "display": "slider"}),
                 "steps": ("INT", {"default": 50, "min": 1, "max": 100, "step": 1, "display": "slider"}),
                 "guidance_scale": ("FLOAT", {"default": 5, "min": 0, "max": 10, "display": "slider"}),
                 "width": ("INT", {"default": 1024, "min": 512, "max": 2048, "step": 32, "display": "slider"}),
