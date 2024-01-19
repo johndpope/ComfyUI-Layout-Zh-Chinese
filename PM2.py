@@ -181,12 +181,12 @@ class LoRALoader_Node_Zho:
         lora_path = folder_paths.get_full_path("loras", lora_name)
         # 加载 LoRA 权重
         lora_name_processed = os.path.basename(lora_path).replace(".safetensors", "")
-        #unique_adapter_name = f"photomaker_{int(time.time())}"
-        pipe.load_lora_weights(os.path.dirname(lora_path), weight_name=os.path.basename(lora_path), adapter_name=lora_name_processed)
+        unique_adapter_name = f"photomaker_{int(time.time())}"
+        pipe.load_lora_weights(os.path.dirname(lora_path), weight_name=os.path.basename(lora_path), adapter_name=unique_adapter_name)
 
         # 设置适配器和权重
         adapter_weights = [1.0, lora_weight]
-        pipe.set_adapters(["photomaker", lora_name_processed], adapter_weights=adapter_weights)
+        pipe.set_adapters(["photomaker", unique_adapter_name], adapter_weights=adapter_weights)
 
         # 融合 LoRA
         pipe.fuse_lora()
