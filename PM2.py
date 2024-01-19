@@ -196,7 +196,7 @@ class PhotoMakerAdapterLoader_local_lora_Node_Zho:
         # 加载 LoRA 权重
         lora_name_processed = lora_name.replace(".safetensors", "")
         unique_adapter_name = f"photomaker_{int(time.time())}"
-        pipe.load_lora_weights(os.path.dirname(lora_path), weight_name=os.path.basename(lora_path), adapter_name=adapter_name=unique_adapter_name)
+        pipe.load_lora_weights(os.path.dirname(lora_path), weight_name=os.path.basename(lora_path), adapter_name=unique_adapter_name)
     
         # 设置适配器和权重
         filename_processed = filename.replace(".bin", "")
