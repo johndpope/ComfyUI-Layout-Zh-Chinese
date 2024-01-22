@@ -2,3 +2,4 @@ opencv-python
 transformers 
 accelerate 
 insightface
+diffusers
