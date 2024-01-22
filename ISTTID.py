@@ -146,8 +146,7 @@ class ControlNetLoader_fromhub_Node_Zho:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "repo_id": ("STRING", {"default": "InstantX/InstantID"}),
-                "filename": ("STRING", {"default": "ControlNetModel/diffusion_pytorch_model.safetensors"})
+                "controlnet_path": ("STRING", {"default": "enter your path"}),
             }
         }
 
@@ -155,7 +154,14 @@ class ControlNetLoader_fromhub_Node_Zho:
     RETURN_NAMES = ("controlnet",)
     FUNCTION = "load_controlnet"
     CATEGORY = "📷InstantID"
+    
+    def load_controlnet(self, controlnet_path):
 
+        controlnet = ControlNetModel.from_pretrained(controlnet_path, torch_dtype=torch.float16)
+
+        return [controlnet]
+
+'''
     def load_controlnet(self, repo_id, filename):
         # 下载ControlNetModel的模型文件
         controlnet_path = hf_hub_download(
@@ -176,7 +182,7 @@ class ControlNetLoader_fromhub_Node_Zho:
         controlnet = ControlNetModel.from_pretrained(controlnet_path, torch_dtype=torch.float16)
 
         return [controlnet]
-
+'''
 
 class BaseModelLoader_fromhub_Node_Zho:
     def __init__(self):
