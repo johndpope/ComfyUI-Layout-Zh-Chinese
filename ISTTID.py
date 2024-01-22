@@ -13,14 +13,38 @@ from .pipeline_stable_diffusion_xl_instantid import StableDiffusionXLInstantIDPi
 
 
 # prepare 'antelopev2' under ./models
-root_dir = './models'
-model_pack_name='antelopev2'
+#root_dir = './models'
+#model_pack_name='antelopev2'
 # 创建FaceAnalysis实例，使用本地模型
 #app = FaceAnalysis(allowed_modules=['detection', 'recognition'],name=model_pack_name)
-app = FaceAnalysis(name=model_pack_name, root=root_dir, providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
-app.prepare(ctx_id=0, det_size=(640, 640))
+#app = FaceAnalysis(name=model_pack_name, root=root_dir, providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
+#app.prepare(ctx_id=0, det_size=(640, 640))
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
+
+
+class InsightFaceLoader_Node_Zho:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "insight_face_path": ("STRING", {"default": "enter your photomaker model path"}),
+                "filename": ("STRING", {"default": "antelopev2"}),
+                "provider": (["CPU", "CUDA"], ),
+            },
+        }
+
+    RETURN_TYPES = ("INSIGHTFACE",)
+    FUNCTION = "load_insight_face"
+    CATEGORY = "📷InstantID"
+
+    def load_insight_face(self, insight_face_path, filename, provider):
+        insight_face = os.path.join(insight_face_path, filename)
+        model = FaceAnalysis(name="antelopev2", root=insight_face, providers=[provider + 'ExecutionProvider',])
+        model.prepare(ctx_id=0, det_size=(640, 640))
+
+        return (model,)
+
 
 
 class ControlNetLoader_fromhub_Node_Zho:
@@ -189,6 +213,7 @@ class GenerationNode_Zho:
             "required": {
                 "face_image": ("IMAGE",),
                 "pipe": ("MODEL",),
+                "insightface": ("INSIGHTFACE",),
                 "prompt": ("STRING", {"default": "film noir style, ink sketch|vector, male man, highly detailed, sharp focus, ultra sharpness, monochrome, high contrast, dramatic shadows, 1940s style, mysterious, cinematic", "multiline": True}),
                 "negative_prompt": ("STRING", {"default": "ugly, deformed, noisy, blurry, low contrast, realism, photorealistic, vibrant, colorful", "multiline": True}),
                 "batch_size": ("INT", {"default": 1, "min": 1, "max": 4, "display": "slider"}),
@@ -206,9 +231,9 @@ class GenerationNode_Zho:
     FUNCTION = "generate_image"
     CATEGORY = "📷InstantID"
 
-    def generate_image(self, prompt, negative_prompt, face_image, pipe, batch_size, ip_adapter_scale, controlnet_conditioning_scale, steps, guidance_scale, width, height, seed):
+    def generate_image(self, insightface, prompt, negative_prompt, face_image, pipe, batch_size, ip_adapter_scale, controlnet_conditioning_scale, steps, guidance_scale, width, height, seed):
         # prepare face emb
-        face_info = app.get(cv2.cvtColor(np.array(face_image), cv2.COLOR_RGB2BGR))
+        face_info = insightface.get(cv2.cvtColor(np.array(face_image), cv2.COLOR_RGB2BGR))
         face_info = sorted(face_info, key=lambda x:(x['bbox'][2]-x['bbox'][0])*x['bbox'][3]-x['bbox'][1])[-1]  # only use the maximum face
         face_emb = face_info['embedding']
         face_kps = draw_kps(face_image, face_info['kps'])
@@ -263,6 +288,7 @@ class GenerationNode_Zho:
 
 
 NODE_CLASS_MAPPINGS = {
+    "InsightFaceLoader": InsightFaceLoader_Node_Zho,
     "ControlNetLoader_fromhub": ControlNetLoader_fromhub_Node_Zho,
     "BaseModelLoader_fromhub": BaseModelLoader_fromhub_Node_Zho,
     "Ipadapter_instantidLoader_fromhub": Ipadapter_instantidLoader_fromhub_Node_Zho,
@@ -271,6 +297,7 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
+    "InsightFaceLoader": "📷InsightFace Loader",
     "ControlNetLoader_fromhub": "📷ControlNet Loader from hub🤗",
     "BaseModelLoader_fromhub": "📷Base Model Loader from hub🤗",
     "Ipadapter_instantidLoader_fromhub": "📷Ipadapter_instantid Loader from hub🤗",
