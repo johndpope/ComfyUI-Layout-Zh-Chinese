@@ -105,7 +105,7 @@ class BaseModelLoader_Node_Zho:
             raise FileNotFoundError(f"Checkpoint file {ckpt_path} not found.")
                 
         pipe = StableDiffusionXLInstantIDPipeline.from_single_file(
-            base_model_path,
+            pretrained_model_link_or_path=ckpt_path,
             controlnet=controlnet,
             torch_dtype=torch.float16,
             #local_dir="./checkpoints"
