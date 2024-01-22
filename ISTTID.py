@@ -50,7 +50,7 @@ class InsightFaceLoader_Node_Zho:
         return (model,)
 
 
-
+'''
 class ControlNetLoader_Node_Zho:
     def __init__(self):
         pass
@@ -73,7 +73,7 @@ class ControlNetLoader_Node_Zho:
         controlnet = ControlNetModel.from_pretrained(controlnet_path, torch_dtype=torch.float16)
         
         return [controlnet]
-
+'''
 
 class BaseModelLoader_Node_Zho:
     def __init__(self):
@@ -139,7 +139,7 @@ class Ipadapter_instantidLoader_Node_Zho:
 
         return [pipe]
 
-'''
+
 class ControlNetLoader_fromhub_Node_Zho:
     def __init__(self):
         pass
@@ -163,13 +163,13 @@ class ControlNetLoader_fromhub_Node_Zho:
         controlnet_path = hf_hub_download(
             repo_id=repo_id,
             filename=filename,
-            #local_dir="./checkpoints"
+            local_dir="./checkpoints"
         )
 
         controlnet = ControlNetModel.from_pretrained(controlnet_path, torch_dtype=torch.float16)
 
         return [controlnet]
-'''
+
 
 '''
         # 下载额外的config.json文件
@@ -398,7 +398,7 @@ class GenerationNode_Zho:
 
 NODE_CLASS_MAPPINGS = {
     "InsightFaceLoader": InsightFaceLoader_Node_Zho,
-    "ControlNetLoader": ControlNetLoader_Node_Zho,
+    "ControlNetLoader_fromhub": ControlNetLoader_fromhub_Node_Zho,
     "BaseModelLoader": BaseModelLoader_Node_Zho,
     "Ipadapter_instantidLoader": Ipadapter_instantidLoader_Node_Zho,
     "ImageResize": ImageResize_Zho,
