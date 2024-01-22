@@ -6,6 +6,7 @@ import cv2
 import torch
 import numpy as np
 from PIL import Image
+import folder_paths
 
 from huggingface_hub import hf_hub_download
 from insightface.app import FaceAnalysis
@@ -47,6 +48,96 @@ class InsightFaceLoader_Node_Zho:
 
 
 
+class ControlNetLoader_Node_Zho:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "control_net_name": (folder_paths.get_filename_list("controlnet"), )
+            }
+        }
+
+    RETURN_TYPES = ("MODEL",)
+    RETURN_NAMES = ("controlnet",)
+    FUNCTION = "load_controlnet"
+    CATEGORY = "📷InstantID"
+
+    def load_controlnet(self, control_net_name):
+        controlnet_path = folder_paths.get_full_path("controlnet", control_net_name)
+      
+        controlnet = ControlNetModel.from_single_file(controlnet_path, torch_dtype=torch.float16)
+
+        return [controlnet]
+
+
+class BaseModelLoader_Node_Zho:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "ckpt_name": (folder_paths.get_filename_list("checkpoints"), ),
+                "controlnet": ("MODEL",)
+            }
+        }
+
+    RETURN_TYPES = ("MODEL",)
+    RETURN_NAMES = ("pipe",)
+    FUNCTION = "load_model"
+    CATEGORY = "📷InstantID"
+  
+    def load_model(self, ckpt_name, controlnet):
+        # Code to load the base model
+        if not ckpt_name:
+            raise ValueError("Please provide the ckpt_name parameter with the name of the checkpoint file.")
+
+        ckpt_path = folder_paths.get_full_path("checkpoints", ckpt_name)
+            
+        if not os.path.exists(ckpt_path):
+            raise FileNotFoundError(f"Checkpoint file {ckpt_path} not found.")
+                
+        pipe = PhotoMakerStableDiffusionXLPipeline.from_single_file(
+            base_model_path,
+            controlnet=controlnet,
+            torch_dtype=torch.float16,
+            #local_dir="./checkpoints"
+        ).to(device)
+        return [pipe]
+
+
+class Ipadapter_instantidLoader_Node_Zho:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "Ipadapter_instantid_path": ("STRING", {"default": "enter your path"}),
+                "filename": ("STRING", {"default": "ip-adapter.bin"}),
+                "pipe": ("MODEL",),
+            }
+        }
+
+    RETURN_TYPES = ("MODEL",)
+    FUNCTION = "load_ip_adapter_instantid"
+    CATEGORY = "📷InstantID"
+
+    def load_ip_adapter_instantid(self, pipe, Ipadapter_instantid_path, filename):
+        # 使用hf_hub_download方法获取PhotoMaker文件的路径
+        face_adapter = os.path.join(Ipadapter_instantid_path, filename)
+
+        # load adapter
+        pipe.load_ip_adapter_instantid(face_adapter)
+
+        return [pipe]
+
+'''
 class ControlNetLoader_fromhub_Node_Zho:
     def __init__(self):
         pass
@@ -144,31 +235,19 @@ class Ipadapter_instantidLoader_fromhub_Node_Zho:
         pipe.load_ip_adapter_instantid(face_adapter)
 
         return [pipe]
-
+'''
 
 class ImageResize_Zho:
     def __init__(self):
-        pass
+        # 设置 max_side 和 min_side 为固定值或根据需要调整
+        self.max_side = 1280
+        self.min_side = 1024
 
     @classmethod
     def INPUT_TYPES(cls):
         return {
             "required": {
                 "input_image": ("IMAGE",),
-                "max_side": ("INT", {
-                    "default": 1280,
-                    "min": 64,
-                    "max": 4096,
-                    "step": 64,
-                    "display": "number"
-                }),
-                "min_side": ("INT", {
-                    "default": 1024,
-                    "min": 64,
-                    "max": 4096,
-                    "step": 64,
-                    "display": "number"
-                }),
                 "pad_to_max_side": (["True", "False"], {
                     "default": "False"
                 }),
@@ -182,30 +261,50 @@ class ImageResize_Zho:
     FUNCTION = "resize_img"
     CATEGORY = "📷InstantID"
 
-    def resize_img(self, input_image, max_side, min_side, pad_to_max_side, mode):
+    def resize_img(self, input_image, pad_to_max_side, mode):
         image_np = (255. * input_image.cpu().numpy().squeeze()).clip(0, 255).astype(np.uint8)
         input_image = Image.fromarray(image_np)
-        #input_image.append(input_image)
         
         base_pixel_number = 64
         w, h = input_image.size
-        ratio = min_side / min(h, w)
+        ratio = self.min_side / min(h, w)
         w, h = round(ratio * w), round(ratio * h)
-        ratio = max_side / max(h, w)
+        ratio = self.max_side / max(h, w)
         input_image = input_image.resize([round(ratio * w), round(ratio * h)], mode)
         w_resize_new = (round(ratio * w) // base_pixel_number) * base_pixel_number
         h_resize_new = (round(ratio * h) // base_pixel_number) * base_pixel_number
         input_image = input_image.resize([w_resize_new, h_resize_new], mode)
 
         if pad_to_max_side:
-            res = np.ones([max_side, max_side, 3], dtype=np.uint8) * 255
-            offset_x = (max_side - w_resize_new) // 2
-            offset_y = (max_side - h_resize_new) // 2
+            res = np.ones([self.max_side, self.max_side, 3], dtype=np.uint8) * 255
+            offset_x = (self.max_side - w_resize_new) // 2
+            offset_y = (self.max_side - h_resize_new) // 2
             res[offset_y:offset_y + h_resize_new, offset_x:offset_x + w_resize_new] = np.array(input_image)
             input_image = Image.fromarray(res)
 
         return input_image
 
+'''
+class ImageResize_Zho:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {
+            "image": ("IMAGE",),
+            "interpolation": (["LANCZOS", "BICUBIC", "HAMMING", "BILINEAR", "BOX", "NEAREST"],),
+            "crop_position": (["top", "bottom", "left", "right", "center", "pad"],),
+            "sharpening": ("FLOAT", {"default": 0.0, "min": 0, "max": 1, "step": 0.05}),
+            },
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "prep_image"
+    CATEGORY = "📷InstantID"
+
+    def prep_image(self, image, interpolation="LANCZOS", crop_position="center", sharpening=0.0):
+        size = (1024, 1024)
+        output = prepImage(image, interpolation, crop_position, size, sharpening, 0)
+        return (output, )
+'''
 
 class GenerationNode_Zho:
     def __init__(self):
@@ -293,18 +392,18 @@ class GenerationNode_Zho:
 
 NODE_CLASS_MAPPINGS = {
     "InsightFaceLoader": InsightFaceLoader_Node_Zho,
-    "ControlNetLoader_fromhub": ControlNetLoader_fromhub_Node_Zho,
-    "BaseModelLoader_fromhub": BaseModelLoader_fromhub_Node_Zho,
-    "Ipadapter_instantidLoader_fromhub": Ipadapter_instantidLoader_fromhub_Node_Zho,
+    "ControlNetLoader": ControlNetLoader_Node_Zho,
+    "BaseModelLoader": BaseModelLoader_Node_Zho,
+    "Ipadapter_instantidLoader": Ipadapter_instantidLoader_Node_Zho,
     "ImageResize": ImageResize_Zho,
     "GenerationNode": GenerationNode_Zho
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "InsightFaceLoader": "📷InsightFace Loader",
-    "ControlNetLoader_fromhub": "📷ControlNet Loader from hub🤗",
-    "BaseModelLoader_fromhub": "📷Base Model Loader from hub🤗",
-    "Ipadapter_instantidLoader_fromhub": "📷Ipadapter_instantid Loader from hub🤗",
+    "ControlNetLoader": "📷ControlNet Loader",
+    "BaseModelLoader": "📷Base Model Loader",
+    "Ipadapter_instantidLoader": "📷Ipadapter_instantid Loader",
     "ImageResize": "📷Image Resize",
     "GenerationNode": "📷InstantID Generation"
 }
