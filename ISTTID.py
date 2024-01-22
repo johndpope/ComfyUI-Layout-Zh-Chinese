@@ -24,8 +24,12 @@ from .pipeline_stable_diffusion_xl_instantid import StableDiffusionXLInstantIDPi
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
+
 def resize_img(input_image, max_side=1280, min_side=1024, size=None, 
                pad_to_max_side=False, mode=Image.BILINEAR, base_pixel_number=64):
+
+    image_np = (255. * input_image.cpu().numpy().squeeze()).clip(0, 255).astype(np.uint8)
+    input_image = Image.fromarray(image_np)
 
     w, h = input_image.size
     if size is not None:
@@ -46,6 +50,7 @@ def resize_img(input_image, max_side=1280, min_side=1024, size=None,
         res[offset_y:offset_y+h_resize_new, offset_x:offset_x+w_resize_new] = np.array(input_image)
         input_image = Image.fromarray(res)
     return input_image
+
 
 class InsightFaceLoader_Node_Zho:
     @classmethod
