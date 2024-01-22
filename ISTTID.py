@@ -201,7 +201,7 @@ class BaseModelLoader_fromhub_Node_Zho:
   
     def load_model(self, base_model_path, controlnet):
         # Code to load the base model
-        pipe = PhotoMakerStableDiffusionXLPipeline.from_pretrained(
+        pipe = StableDiffusionXLInstantIDPipeline.from_pretrained(
             base_model_path,
             controlnet=controlnet,
             torch_dtype=torch.float16,
