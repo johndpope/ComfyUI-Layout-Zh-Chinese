@@ -72,7 +72,6 @@ class ControlNetLoader_Node_Zho:
         controlnet_path = control_net_path
         controlnet = ControlNetModel.from_pretrained(controlnet_path, torch_dtype=torch.float16)
         
-        
         return [controlnet]
 
 
