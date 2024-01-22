@@ -166,6 +166,12 @@ class ControlNetLoader_fromhub_Node_Zho:
             filename=filename,
             #local_dir="./checkpoints"
         )
+
+        controlnet = ControlNetModel.from_pretrained(controlnet_path, torch_dtype=torch.float16)
+
+        return [controlnet]
+
+
 '''
         # 下载额外的config.json文件
         config_path = hf_hub_download(
@@ -174,9 +180,7 @@ class ControlNetLoader_fromhub_Node_Zho:
             #local_dir="./checkpoints"
         )
 '''   
-        controlnet = ControlNetModel.from_pretrained(controlnet_path, torch_dtype=torch.float16)
 
-        return [controlnet]
 
 '''
 class BaseModelLoader_fromhub_Node_Zho:
