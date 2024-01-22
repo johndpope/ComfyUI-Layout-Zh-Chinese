@@ -13,7 +13,7 @@ from .pipeline_stable_diffusion_xl_instantid import StableDiffusionXLInstantIDPi
 
 
 # prepare 'antelopev2' under ./models
-root_dir = './models/antelopev2'
+root_dir = './models'
 # 创建FaceAnalysis实例，使用本地模型
 app = FaceAnalysis(name='antelopev2', root=root_dir, providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
 app.prepare(ctx_id=0, det_size=(640, 640))
