@@ -9,7 +9,7 @@ from PIL import Image
 
 from huggingface_hub import hf_hub_download
 from insightface.app import FaceAnalysis
-from pipeline_stable_diffusion_xl_instantid import StableDiffusionXLInstantIDPipeline, draw_kps
+from .pipeline_stable_diffusion_xl_instantid import StableDiffusionXLInstantIDPipeline, draw_kps
 
 
 # prepare 'antelopev2' under ./models
