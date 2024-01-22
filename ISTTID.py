@@ -24,6 +24,28 @@ from .pipeline_stable_diffusion_xl_instantid import StableDiffusionXLInstantIDPi
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
+def resize_img(input_image, max_side=1280, min_side=1024, size=None, 
+               pad_to_max_side=False, mode=Image.BILINEAR, base_pixel_number=64):
+
+    w, h = input_image.size
+    if size is not None:
+        w_resize_new, h_resize_new = size
+    else:
+        ratio = min_side / min(h, w)
+        w, h = round(ratio*w), round(ratio*h)
+        ratio = max_side / max(h, w)
+        input_image = input_image.resize([round(ratio*w), round(ratio*h)], mode)
+        w_resize_new = (round(ratio * w) // base_pixel_number) * base_pixel_number
+        h_resize_new = (round(ratio * h) // base_pixel_number) * base_pixel_number
+    input_image = input_image.resize([w_resize_new, h_resize_new], mode)
+
+    if pad_to_max_side:
+        res = np.ones([max_side, max_side, 3], dtype=np.uint8) * 255
+        offset_x = (max_side - w_resize_new) // 2
+        offset_y = (max_side - h_resize_new) // 2
+        res[offset_y:offset_y+h_resize_new, offset_x:offset_x+w_resize_new] = np.array(input_image)
+        input_image = Image.fromarray(res)
+    return input_image
 
 class InsightFaceLoader_Node_Zho:
     @classmethod
@@ -342,29 +364,6 @@ class GenerationNode_Zho:
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "generate_image"
     CATEGORY = "📷InstantID"
-    
-    def resize_img(input_image, max_side=1280, min_side=1024, size=None, 
-                   pad_to_max_side=False, mode=Image.BILINEAR, base_pixel_number=64):
-
-        w, h = input_image.size
-        if size is not None:
-            w_resize_new, h_resize_new = size
-        else:
-            ratio = min_side / min(h, w)
-            w, h = round(ratio*w), round(ratio*h)
-            ratio = max_side / max(h, w)
-            input_image = input_image.resize([round(ratio*w), round(ratio*h)], mode)
-            w_resize_new = (round(ratio * w) // base_pixel_number) * base_pixel_number
-            h_resize_new = (round(ratio * h) // base_pixel_number) * base_pixel_number
-        input_image = input_image.resize([w_resize_new, h_resize_new], mode)
-
-        if pad_to_max_side:
-            res = np.ones([max_side, max_side, 3], dtype=np.uint8) * 255
-            offset_x = (max_side - w_resize_new) // 2
-            offset_y = (max_side - h_resize_new) // 2
-            res[offset_y:offset_y+h_resize_new, offset_x:offset_x+w_resize_new] = np.array(input_image)
-            input_image = Image.fromarray(res)
-        return input_image
                        
     def generate_image(self, insightface, prompt, negative_prompt, face_image, pipe, batch_size, ip_adapter_scale, controlnet_conditioning_scale, steps, guidance_scale, width, height, seed):
 
