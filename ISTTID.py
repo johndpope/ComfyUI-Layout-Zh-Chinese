@@ -24,18 +24,15 @@ from .pipeline_stable_diffusion_xl_instantid import StableDiffusionXLInstantIDPi
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-hf_hub_download(repo_id="InstantX/InstantID", filename="ControlNetModel/config.json", local_dir="./checkpoints")
-hf_hub_download(repo_id="InstantX/InstantID", filename="ControlNetModel/diffusion_pytorch_model.safetensors", local_dir="./checkpoints")
-
 
 class InsightFaceLoader_Node_Zho:
     @classmethod
     def INPUT_TYPES(s):
         return {
             "required": {
-                "insight_face_path": ("STRING", {"default": "enter your photomaker model path"}),
-                "filename": ("STRING", {"default": "antelopev2"}),
-                "provider": (["CPU", "CUDA"], ),
+                "insight_face_path": ("STRING", {"default": "enter path"}),
+                "filename": ("STRING", {"default": "buffalo_l"}),
+                "provider": (["CUDA", "CPU"], ),
             },
         }
 
@@ -45,7 +42,7 @@ class InsightFaceLoader_Node_Zho:
 
     def load_insight_face(self, insight_face_path, filename, provider):
         insight_face = os.path.join(insight_face_path, filename)
-        model = FaceAnalysis(name="antelopev2", root=insight_face, providers=[provider + 'ExecutionProvider',])
+        model = FaceAnalysis(name="buffalo_l", root=insight_face, providers=[provider + 'ExecutionProvider',])
         model.prepare(ctx_id=0, det_size=(640, 640))
 
         return (model,)
