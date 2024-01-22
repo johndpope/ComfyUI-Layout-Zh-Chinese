@@ -23,6 +23,9 @@ from .pipeline_stable_diffusion_xl_instantid import StableDiffusionXLInstantIDPi
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
+hf_hub_download(repo_id="InstantX/InstantID", filename="ControlNetModel/config.json", local_dir="./checkpoints")
+hf_hub_download(repo_id="InstantX/InstantID", filename="ControlNetModel/diffusion_pytorch_model.safetensors", local_dir="./checkpoints")
+
 
 class InsightFaceLoader_Node_Zho:
     @classmethod
@@ -47,7 +50,7 @@ class InsightFaceLoader_Node_Zho:
         return (model,)
 
 
-'''
+
 class ControlNetLoader_Node_Zho:
     def __init__(self):
         pass
@@ -56,7 +59,7 @@ class ControlNetLoader_Node_Zho:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "control_net_name": (folder_paths.get_filename_list("controlnet"), )
+                "control_net_path": ("STRING", {"default": "enter your path"}),
             }
         }
 
@@ -65,16 +68,13 @@ class ControlNetLoader_Node_Zho:
     FUNCTION = "load_controlnet"
     CATEGORY = "📷InstantID"
 
-    def load_controlnet(self, control_net_name):
-        controlnet_path = folder_paths.get_full_path("controlnet", control_net_name)
-        controlnet = ControlNetModel.from_single_file(controlnet_path, torch_dtype=torch.float16)
-
-        pipe = StableDiffusionXLInstantIDPipeline.from_single_file(url, controlnet=controlnet)
+    def load_controlnet(self, control_net_path):
+        controlnet_path = control_net_path
+        controlnet = ControlNetModel.from_pretrained(controlnet_path, torch_dtype=torch.float16)
         
         
-
         return [controlnet]
-'''
+
 
 class BaseModelLoader_Node_Zho:
     def __init__(self):
@@ -140,7 +140,7 @@ class Ipadapter_instantidLoader_Node_Zho:
 
         return [pipe]
 
-
+'''
 class ControlNetLoader_fromhub_Node_Zho:
     def __init__(self):
         pass
@@ -170,7 +170,7 @@ class ControlNetLoader_fromhub_Node_Zho:
         controlnet = ControlNetModel.from_pretrained(controlnet_path, torch_dtype=torch.float16)
 
         return [controlnet]
-
+'''
 
 '''
         # 下载额外的config.json文件
