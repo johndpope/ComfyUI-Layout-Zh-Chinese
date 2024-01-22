@@ -252,9 +252,6 @@ class ImageResize_Zho:
                 "input_image": ("IMAGE",),
                 "pad_to_max_side": (["True", "False"], {
                     "default": "False"
-                }),
-                "mode": (["BILINEAR", "NEAREST", "BOX", "HAMMING", "BICUBIC", "LANCZOS"], {
-                    "default": "BILINEAR"
                 })
             },
         }
@@ -263,7 +260,9 @@ class ImageResize_Zho:
     FUNCTION = "resize_img"
     CATEGORY = "📷InstantID"
 
-    def resize_img(self, input_image, pad_to_max_side, mode):
+    def resize_img(self, input_image, pad_to_max_side):
+        mode=Image.BILINEAR
+        
         image_np = (255. * input_image.cpu().numpy().squeeze()).clip(0, 255).astype(np.uint8)
         input_image = Image.fromarray(image_np)
         
