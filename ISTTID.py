@@ -346,17 +346,12 @@ class GenerationNode_Zho:
     def generate_image(self, insightface, prompt, negative_prompt, face_image, pipe, batch_size, ip_adapter_scale, controlnet_conditioning_scale, steps, guidance_scale, width, height, seed):
         # prepare face emb
         face_info = insightface.get(cv2.cvtColor(np.array(face_image), cv2.COLOR_RGB2BGR))
-        try:
-            face_info = sorted(face_info, key=lambda x: (x['bbox'][2] - x['bbox'][0]) * (x['bbox'][3] - x['bbox'][1]))[-1]
-            face_emb = face_info['embedding']
-            face_kps = draw_kps(face_image, face_info['kps'])
-        except IndexError:
-            # 处理没有检测到面部或其他错误的情况
-            return some_default_value_or_handle_error
+        if not face_info:
+            return "No face detected"
 
-        #face_info = sorted(face_info, key=lambda x:(x['bbox'][2]-x['bbox'][0])*x['bbox'][3]-x['bbox'][1])[-1]  # only use the maximum face
-        #face_emb = face_info['embedding']
-        #face_kps = draw_kps(face_image, face_info['kps'])
+        face_info = sorted(face_info, key=lambda x: (x['bbox'][2] - x['bbox'][0]) * (x['bbox'][3] - x['bbox'][1]))[-1]
+        face_emb = face_info['embedding']
+        face_kps = draw_kps(face_image, face_info['kps'])
 
         generator = torch.Generator(device=device).manual_seed(seed)
 
