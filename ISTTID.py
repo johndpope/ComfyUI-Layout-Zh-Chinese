@@ -56,7 +56,7 @@ class ControlNetLoader_fromhub_Node_Zho:
         return {
             "required": {
                 "repo_id": ("STRING", {"default": "InstantX/InstantID"}),
-                "filename": ("STRING", {"default": "ControlNetModel/diffusion_pytorch_model.safetensors"})
+                "filename": ("STRING", {"default": "ControlNetModel"})
             }
         }
 
@@ -184,7 +184,7 @@ class ImageResize_Zho:
 
     def resize_img(self, input_image, max_side, min_side, pad_to_max_side, mode):
         base_pixel_number = 64
-        w, h = input_image.size
+        w, h = input_image.size()
         ratio = min_side / min(h, w)
         w, h = round(ratio * w), round(ratio * h)
         ratio = max_side / max(h, w)
