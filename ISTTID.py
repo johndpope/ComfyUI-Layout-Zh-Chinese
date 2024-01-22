@@ -14,8 +14,10 @@ from .pipeline_stable_diffusion_xl_instantid import StableDiffusionXLInstantIDPi
 
 # prepare 'antelopev2' under ./models
 root_dir = './models'
+model_pack_name='antelopev2'
 # 创建FaceAnalysis实例，使用本地模型
-app = FaceAnalysis(name='antelopev2', root=root_dir, providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
+app = FaceAnalysis(allowed_modules=['detection', 'recognition'],name=model_pack_name)
+#app = FaceAnalysis(name='antelopev2', root=root_dir, providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
 app.prepare(ctx_id=0, det_size=(640, 640))
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
