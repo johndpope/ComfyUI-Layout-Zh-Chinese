@@ -81,7 +81,7 @@ class BaseModelLoader_fromhub_Node_Zho:
             base_model_path,
             controlnet=controlnet,
             torch_dtype=torch.float16,
-            local_dir="./checkpoints")
+            local_dir="./checkpoints"
         ).to(device)
         return [pipe]
 
