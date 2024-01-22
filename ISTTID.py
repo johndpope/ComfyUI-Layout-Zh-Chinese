@@ -285,7 +285,7 @@ class ImageResize_Zho:
 
         input_image = torch.from_numpy(np.array(input_image).astype(np.float32) / 255.0).unsqueeze(0)
 
-        return input_image
+        return [input_image]
 
 '''
 class ImageResize_Zho:
