@@ -47,7 +47,7 @@ class InsightFaceLoader_Node_Zho:
         return (model,)
 
 
-
+'''
 class ControlNetLoader_Node_Zho:
     def __init__(self):
         pass
@@ -67,11 +67,14 @@ class ControlNetLoader_Node_Zho:
 
     def load_controlnet(self, control_net_name):
         controlnet_path = folder_paths.get_full_path("controlnet", control_net_name)
-      
         controlnet = ControlNetModel.from_single_file(controlnet_path, torch_dtype=torch.float16)
 
-        return [controlnet]
+        pipe = StableDiffusionXLInstantIDPipeline.from_single_file(url, controlnet=controlnet)
+        
+        
 
+        return [controlnet]
+'''
 
 class BaseModelLoader_Node_Zho:
     def __init__(self):
@@ -137,7 +140,7 @@ class Ipadapter_instantidLoader_Node_Zho:
 
         return [pipe]
 
-'''
+
 class ControlNetLoader_fromhub_Node_Zho:
     def __init__(self):
         pass
@@ -147,7 +150,7 @@ class ControlNetLoader_fromhub_Node_Zho:
         return {
             "required": {
                 "repo_id": ("STRING", {"default": "InstantX/InstantID"}),
-                "filename": ("STRING", {"default": "ControlNetModel/diffusion_pytorch_model.safetensors"})
+                "filename": ("STRING", {"default": "ControlNetModel/config.json"})
             }
         }
 
@@ -163,19 +166,19 @@ class ControlNetLoader_fromhub_Node_Zho:
             filename=filename,
             #local_dir="./checkpoints"
         )
-
+'''
         # 下载额外的config.json文件
         config_path = hf_hub_download(
             repo_id="InstantX/InstantID",
             filename="ControlNetModel/config.json",
             #local_dir="./checkpoints"
         )
-      
+'''   
         controlnet = ControlNetModel.from_pretrained(controlnet_path, torch_dtype=torch.float16)
 
         return [controlnet]
 
-
+'''
 class BaseModelLoader_fromhub_Node_Zho:
     def __init__(self):
         pass
