@@ -70,14 +70,14 @@ class ControlNetLoader_fromhub_Node_Zho:
         controlnet_path = hf_hub_download(
             repo_id=repo_id,
             filename=filename,
-            local_dir="./checkpoints"
+            #local_dir="./checkpoints"
         )
 
         # 下载额外的config.json文件
         config_path = hf_hub_download(
             repo_id="InstantX/InstantID",
             filename="ControlNetModel/config.json",
-            local_dir="./checkpoints"
+            #local_dir="./checkpoints"
         )
       
         controlnet = ControlNetModel.from_pretrained(controlnet_path, torch_dtype=torch.float16)
@@ -109,7 +109,7 @@ class BaseModelLoader_fromhub_Node_Zho:
             base_model_path,
             controlnet=controlnet,
             torch_dtype=torch.float16,
-            local_dir="./checkpoints"
+            #local_dir="./checkpoints"
         ).to(device)
         return [pipe]
 
@@ -137,7 +137,7 @@ class Ipadapter_instantidLoader_fromhub_Node_Zho:
         face_adapter = hf_hub_download(
             repo_id = repo_id,
             filename = filename,
-            local_dir="./checkpoints"
+            #local_dir="./checkpoints"
         )
 
         # load adapter
