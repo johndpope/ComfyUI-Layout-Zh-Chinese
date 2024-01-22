@@ -149,7 +149,7 @@ class ControlNetLoader_fromhub_Node_Zho:
         return {
             "required": {
                 "repo_id": ("STRING", {"default": "InstantX/InstantID"}),
-                "filename": ("STRING", {"default": "ControlNetModel/config.json"})
+                "filename": ("STRING", {"default": "ControlNetModel/diffusion_pytorch_model.safetensors"})
             }
         }
 
@@ -165,6 +165,15 @@ class ControlNetLoader_fromhub_Node_Zho:
             filename=filename,
             local_dir="./checkpoints"
         )
+        
+        # 下载额外的config.json文件
+        config_path = hf_hub_download(
+            repo_id="InstantX/InstantID",
+            filename="ControlNetModel/config.json",
+            local_dir="./checkpoints"
+        )
+        
+        controlnet_path="./checkpoints/ControlNetModel"
 
         controlnet = ControlNetModel.from_pretrained(controlnet_path, torch_dtype=torch.float16)
 
@@ -172,12 +181,7 @@ class ControlNetLoader_fromhub_Node_Zho:
 
 
 '''
-        # 下载额外的config.json文件
-        config_path = hf_hub_download(
-            repo_id="InstantX/InstantID",
-            filename="ControlNetModel/config.json",
-            #local_dir="./checkpoints"
-        )
+        
 '''   
 
 
