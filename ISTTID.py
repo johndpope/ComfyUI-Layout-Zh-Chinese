@@ -56,7 +56,7 @@ class ControlNetLoader_fromhub_Node_Zho:
         return {
             "required": {
                 "repo_id": ("STRING", {"default": "InstantX/InstantID"}),
-                "filename": ("STRING", {"default": "ControlNetModel"})
+                "filename": ("STRING", {"default": "ControlNetModel/diffusion_pytorch_model.safetensors"})
             }
         }
 
@@ -183,8 +183,12 @@ class ImageResize_Zho:
     CATEGORY = "📷InstantID"
 
     def resize_img(self, input_image, max_side, min_side, pad_to_max_side, mode):
+        image_np = (255. * input_image.cpu().numpy().squeeze()).clip(0, 255).astype(np.uint8)
+        input_image = Image.fromarray(image_np)
+        #input_image.append(input_image)
+        
         base_pixel_number = 64
-        w, h = input_image.size()
+        w, h = input_image.size
         ratio = min_side / min(h, w)
         w, h = round(ratio * w), round(ratio * h)
         ratio = max_side / max(h, w)
