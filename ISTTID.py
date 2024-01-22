@@ -2,6 +2,7 @@ import diffusers
 from diffusers.utils import load_image
 from diffusers.models import ControlNetModel
 
+import os
 import cv2
 import torch
 import numpy as np
