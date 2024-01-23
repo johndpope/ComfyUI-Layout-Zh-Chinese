@@ -97,7 +97,7 @@ class IDControlNetLoaderNode_Zho:
         return [controlnet]
 
 
-class BaseModelLoader_fromhub_Node_Zho:
+class IDBaseModelLoader_fromhub_Node_Zho:
     def __init__(self):
         pass
 
@@ -122,6 +122,44 @@ class BaseModelLoader_fromhub_Node_Zho:
             controlnet=controlnet,
             torch_dtype=torch.float16,
             local_dir="./checkpoints"
+        ).to(device)
+        return [pipe]
+
+
+class IDBaseModelLoader_local_Node_Zho:
+    def __init__(self):
+        pass
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "ckpt_name": (folder_paths.get_filename_list("checkpoints"), ),
+                "controlnet": ("MODEL",)
+            }
+        }
+
+    RETURN_TYPES = ("MODEL",)
+    RETURN_NAMES = ("pipe",)
+    FUNCTION = "load_model"
+    CATEGORY = "📷PhotoMaker"
+  
+    def load_model(self, ckpt_name, controlnet):
+        # Code to load the base model
+        if not ckpt_name:
+            raise ValueError("Please provide the ckpt_name parameter with the name of the checkpoint file.")
+
+        ckpt_path = folder_paths.get_full_path("checkpoints", ckpt_name)
+            
+        if not os.path.exists(ckpt_path):
+            raise FileNotFoundError(f"Checkpoint file {ckpt_path} not found.")
+                
+        pipe = PhotoMakerStableDiffusionXLPipeline.from_single_file(
+            pretrained_model_link_or_path=ckpt_path,
+            controlnet=controlnet,
+            torch_dtype=torch.float16,
+            use_safetensors=True,
+            variant="fp16"
         ).to(device)
         return [pipe]
 
@@ -179,7 +217,7 @@ class ID_Prompt_Style_Zho:
         return prompt, negative_prompt
 
 
-class GenerationNode_Zho:
+class IDGenerationNode_Zho:
     def __init__(self):
         pass
 
@@ -273,19 +311,21 @@ class GenerationNode_Zho:
 NODE_CLASS_MAPPINGS = {
     "InsightFaceLoader": InsightFaceLoader_Node_Zho,
     "IDControlNetLoader": IDControlNetLoaderNode_Zho,
-    "BaseModelLoader_fromhub": BaseModelLoader_fromhub_Node_Zho,
+    "IDBaseModelLoader_fromhub": IDBaseModelLoader_fromhub_Node_Zho,
+    "IDBaseModelLoader_local": IDBaseModelLoader_local_Node_Zho,
     "Ipadapter_instantidLoader": Ipadapter_instantidLoader_Node_Zho,
     "ID_Prompt_Styler": ID_Prompt_Style_Zho,
-    "GenerationNode": GenerationNode_Zho
+    "IDGenerationNode": IDGenerationNode_Zho
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "InsightFaceLoader": "📷InsightFace Loader",
-    "IDControlNetLoader": "📷IDControlNet Loader",
-    "BaseModelLoader_fromhub": "📷Base Model Loader fromhub",
+    "IDControlNetLoader": "📷ID ControlNet Loader",
+    "IDBaseModelLoader_fromhub": "📷ID Base Model Loader from hub 🤗",
+    "IDBaseModelLoader_local": "📷ID Base Model Loader locally",
     "Ipadapter_instantidLoader": "📷Ipadapter_instantid Loader",
     "ID_Prompt_Styler": "📷ID Prompt_Styler",
-    "GenerationNode": "📷InstantID Generation"
+    "IDGenerationNode": "📷InstantID Generation"
 }
 
 
