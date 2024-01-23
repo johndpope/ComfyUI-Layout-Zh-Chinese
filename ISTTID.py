@@ -22,7 +22,7 @@ class FaceAnalysisImageGeneration:
         hf_hub_download(repo_id="InstantX/InstantID", filename="ip-adapter.bin", local_dir=self.checkpoints_dir)
 
         # 加载模型
-        self.app = FaceAnalysis(name=self.model_name, root='./', providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
+        self.app = FaceAnalysis(name=self.model_name, root='./models', providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
         self.app.prepare(ctx_id=0, det_size=(640, 640))
         self.controlnet = ControlNetModel.from_pretrained(self.controlnet_path, torch_dtype=torch.float16)
         self.pipe = StableDiffusionXLInstantIDPipeline.from_pretrained(
