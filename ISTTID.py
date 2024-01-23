@@ -180,7 +180,7 @@ class GenerationNode_Zho:
     FUNCTION = "generate_image"
     CATEGORY = "📷InstantID"
                        
-    def generate_image(self, insightface, prompt, negative_prompt, face_image, pipe, batch_size, ip_adapter_scale, controlnet_conditioning_scale, steps, guidance_scale, width, height, seed):
+    def generate_image(self, insightface, positive, negative, face_image, pipe, batch_size, ip_adapter_scale, controlnet_conditioning_scale, steps, guidance_scale, width, height, seed):
 
         face_image = resize_img(face_image)
         
@@ -198,8 +198,8 @@ class GenerationNode_Zho:
         pipe.set_ip_adapter_scale(ip_adapter_scale)
 
         output = pipe(
-            prompt=prompt,
-            negative_prompt=negative_prompt,
+            prompt=positive,
+            negative_prompt=negative,
             num_images_per_prompt=batch_size,
             image_embeds=face_emb,
             image=face_kps,
