@@ -45,7 +45,7 @@ class FaceAnalysisImageGeneration:
     def INPUT_TYPES(s):
         return {
             "required": {
-                "image_path": ("STRING", {"default": "enter path"}),
+                "face_image": ("IMAGE",),
                 "prompt": ("STRING", {"default": "enter prompt"}),
                 "negative_prompt": ("STRING", {"default": "enter negative prompt"}),
                 "scale": ("FLOAT", {
@@ -63,9 +63,9 @@ class FaceAnalysisImageGeneration:
     FUNCTION = "process_image"
     CATEGORY = "📷InstantID"
   
-    def process_image(self, image_path, prompt, negative_prompt, scale=0.8):
+    def process_image(self, face_image, prompt, negative_prompt, scale=0.8):
         # 处理图像并生成新图像
-        image = load_image(image_path)
+        image = face_image
         face_info = self.app.get(cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR))
         face_info = sorted(face_info, key=lambda x: (x['bbox'][2]-x['bbox'][0])*x['bbox'][3]-x['bbox'][1])[-1]
         face_emb = face_info['embedding']
