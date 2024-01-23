@@ -154,7 +154,7 @@ class IDBaseModelLoader_local_Node_Zho:
         if not os.path.exists(ckpt_path):
             raise FileNotFoundError(f"Checkpoint file {ckpt_path} not found.")
                 
-        pipe = PhotoMakerStableDiffusionXLPipeline.from_single_file(
+        pipe = StableDiffusionXLInstantIDPipeline.from_single_file(
             pretrained_model_link_or_path=ckpt_path,
             controlnet=controlnet,
             torch_dtype=torch.float16,
