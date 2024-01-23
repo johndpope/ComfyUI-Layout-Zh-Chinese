@@ -1,11 +1,16 @@
 from huggingface_hub import hf_hub_download
 import diffusers
 import cv2
+import os
 import torch
 import numpy as np
 from PIL import Image
 from insightface.app import FaceAnalysis
 from .pipeline_stable_diffusion_xl_instantid import StableDiffusionXLInstantIDPipeline, draw_kps
+
+current_directory = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(current_directory, 'models', 'antelopev2')
+
 
 class FaceAnalysisImageGeneration:
 
@@ -22,7 +27,7 @@ class FaceAnalysisImageGeneration:
         hf_hub_download(repo_id="InstantX/InstantID", filename="ip-adapter.bin", local_dir=self.checkpoints_dir)
 
         # 加载模型
-        self.app = FaceAnalysis(name=self.model_name, root='./models/antelopev2', providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
+        self.app = FaceAnalysis(name=self.model_name, root=model_path, providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
         self.app.prepare(ctx_id=0, det_size=(640, 640))
         self.controlnet = ControlNetModel.from_pretrained(self.controlnet_path, torch_dtype=torch.float16)
         self.pipe = StableDiffusionXLInstantIDPipeline.from_pretrained(
