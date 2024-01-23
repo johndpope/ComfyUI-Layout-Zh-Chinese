@@ -142,7 +142,7 @@ class IDBaseModelLoader_local_Node_Zho:
     RETURN_TYPES = ("MODEL",)
     RETURN_NAMES = ("pipe",)
     FUNCTION = "load_model"
-    CATEGORY = "📷PhotoMaker"
+    CATEGORY = "📷InstantID"
   
     def load_model(self, ckpt_name, controlnet):
         # Code to load the base model
@@ -209,7 +209,7 @@ class ID_Prompt_Style_Zho:
     RETURN_TYPES = ('STRING','STRING',)
     RETURN_NAMES = ('positive_prompt','negative_prompt',)
     FUNCTION = "prompt_style"
-    CATEGORY = "📷📷InstantID"
+    CATEGORY = "📷InstantID"
 
     def prompt_style(self, style_name, prompt, negative_prompt):
         prompt, negative_prompt = apply_style(style_name, prompt, negative_prompt)
