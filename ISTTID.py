@@ -31,8 +31,6 @@ class InsightFaceLoader_Node_Zho:
     def INPUT_TYPES(s):
         return {
             "required": {
-                "insight_face_path": ("STRING", {"default": "enter path"}),
-                "filename": ("STRING", {"default": "buffalo_l"}),
                 "provider": (["CUDA", "CPU"], ),
             },
         }
@@ -41,8 +39,8 @@ class InsightFaceLoader_Node_Zho:
     FUNCTION = "load_insight_face"
     CATEGORY = "📷InstantID"
 
-    def load_insight_face(self, insight_face_path, filename, provider):
-        model = FaceAnalysis(name="buffalo_l", root=current_directory, providers=[provider + 'ExecutionProvider',])
+    def load_insight_face(self, provider):
+        model = FaceAnalysis(name="antelopev2", root=current_directory, providers=[provider + 'ExecutionProvider',])
         model.prepare(ctx_id=0, det_size=(640, 640))
 
         return (model,)
@@ -250,6 +248,7 @@ NODE_CLASS_MAPPINGS = {
     "IDControlNetLoader": IDControlNetLoaderNode_Zho,
     "BaseModelLoader_fromhub": BaseModelLoader_fromhub_Node_Zho,
     "Ipadapter_instantidLoader": Ipadapter_instantidLoader_Node_Zho,
+    "ID_Prompt_Styler": ID_Prompt_Style_Zho,
     "GenerationNode": GenerationNode_Zho
 }
 
@@ -258,6 +257,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "IDControlNetLoader": "📷IDControlNet Loader",
     "BaseModelLoader_fromhub": "📷Base Model Loader fromhub",
     "Ipadapter_instantidLoader": "📷Ipadapter_instantid Loader",
+    "ID_Prompt_Styler": "📷ID Prompt_Styler",
     "GenerationNode": "📷InstantID Generation"
 }
 
