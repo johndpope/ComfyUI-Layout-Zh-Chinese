@@ -1,16 +1,20 @@
-from huggingface_hub import hf_hub_download
 import diffusers
-import cv2
+from diffusers.utils import load_image
+from diffusers.models import ControlNetModel
+
 import os
+import cv2
 import torch
 import numpy as np
 from PIL import Image
+import folder_paths
+
+from huggingface_hub import hf_hub_download
 from insightface.app import FaceAnalysis
 from .pipeline_stable_diffusion_xl_instantid import StableDiffusionXLInstantIDPipeline, draw_kps
 
-current_directory = os.path.dirname(os.path.abspath(__file__))
-#model_path = os.path.join(current_directory, 'models', 'antelopev2')
 
+current_directory = os.path.dirname(os.path.abspath(__file__))
 
 class FaceAnalysisImageGeneration:
 
