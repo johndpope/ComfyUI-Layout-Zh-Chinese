@@ -24,7 +24,34 @@ DEFAULT_STYLE_NAME = "Neon"
 def apply_style(style_name: str, positive: str, negative: str = "") -> tuple[str, str]:
         p, n = styles.get(style_name, styles[DEFAULT_STYLE_NAME])
         return p.replace("{prompt}", positive), n + ' ' + negative
-    
+
+
+def resize_img(input_image, max_side=1280, min_side=1024, size=None, 
+               pad_to_max_side=False, mode=Image.BILINEAR, base_pixel_number=64):
+
+    image_np = (255. * input_image.cpu().numpy().squeeze()).clip(0, 255).astype(np.uint8)
+    input_image = Image.fromarray(image_np)
+
+    w, h = input_image.size
+    if size is not None:
+        w_resize_new, h_resize_new = size
+    else:
+        ratio = min_side / min(h, w)
+        w, h = round(ratio*w), round(ratio*h)
+        ratio = max_side / max(h, w)
+        input_image = input_image.resize([round(ratio*w), round(ratio*h)], mode)
+        w_resize_new = (round(ratio * w) // base_pixel_number) * base_pixel_number
+        h_resize_new = (round(ratio * h) // base_pixel_number) * base_pixel_number
+    input_image = input_image.resize([w_resize_new, h_resize_new], mode)
+
+    if pad_to_max_side:
+        res = np.ones([max_side, max_side, 3], dtype=np.uint8) * 255
+        offset_x = (max_side - w_resize_new) // 2
+        offset_y = (max_side - h_resize_new) // 2
+        res[offset_y:offset_y+h_resize_new, offset_x:offset_x+w_resize_new] = np.array(input_image)
+        input_image = Image.fromarray(res)
+    return input_image
+
 
 class InsightFaceLoader_Node_Zho:
     @classmethod
